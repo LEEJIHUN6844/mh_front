@@ -5,4 +5,5 @@
 ## 4. npm start(서버 시작)
 
 # 프로젝트 구조도
-<img width="273" height="658" alt="스크린샷 2025-07-24 12 56 55" src="https://github.com/user-attachments/assets/91e77a37-ff6b-4c5f-87d0-37a8251dd82f" />
+<img width="268" height="736" alt="스크린샷 2025-07-24 12 57 48" src="https://github.com/user-attachments/assets/1141385c-ca45-4260-8b29-2254b375417c" />
+
