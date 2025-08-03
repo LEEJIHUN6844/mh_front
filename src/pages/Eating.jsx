@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, User, Search, Heart } from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Mousewheel, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
+import FilterDropdown from '../pages/FilterDropdown';
 
-// ⛳ 샘플 데이터
+// 샘플 데이터
 const sampleData = [
   {
     id: 1,
@@ -83,20 +80,13 @@ const Main = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const [region, setRegion] = useState('');
+  const [sort, setSort] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleLoginClick = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      navigate('/Signup');
-      setIsLoggedIn(true);
-      setIsLoading(false);
-    }, 800);
-  };
 
   if (isLoading) {
     return (
@@ -112,17 +102,28 @@ const Main = () => {
     );
   }
 
+  const handleLoginClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      navigate('/Signup');
+      setIsLoggedIn(true);
+      setIsLoading(false);
+    }, 800);
+  };
+
+  
+
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-gray-50">
       {/* 🖼️ 배경 이미지 */}
       <img
         src="/assets/혼밥.jpg"
         alt="혼밥 배경"
-        className="absolute top-0 left-0 w-full h-[23%] sm:w-full sm:h-[40%] z-10 rounded-xl "
-      /> 
+        className="absolute top-0 left-0 w-full h-[25%] sm:w-full sm:h-[50%] object-cover"
+      />
 
       {/* 마이페이지 버튼 */}
-      <button onClick={() => navigate('/mypage')} className="fixed bottom-8 right-8 bg-green-500 text-white p-3 rounded-full z-50">
+      <button onClick={() => navigate('/mypage')} className="fixed bottom-8 right-8 bg-yellow-400 text-white p-3 rounded-full z-50">
         <Heart size={32} />
       </button>
       {/* 로그인/회원가입 */}
@@ -133,7 +134,7 @@ const Main = () => {
       <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
 
       {/* 타이틀 */}
-      <div className="absolute top-[5%] left-6 z-40 text-green-300 font-bold text-7xl drop-shadow-md animate-slide-up">
+      <div className="absolute sm:top-[5%] sm:left-10 top-[3%] left-3 text-yellow-100 font-bold text-7xl drop-shadow-md animate-slide-up">
         <p>혼자서도</p>
         <p>맛있게</p>
       </div>
@@ -141,8 +142,8 @@ const Main = () => {
       {/* 검색창 */}
       <div
         className={`
-          absolute top-[22.3%] left-[7.5%] transform -translate-x-1/2 w-[85%]
-          sm:top-[38.5%] sm:w-[1100px] md:left-[11.8%]
+          absolute top-[23%] left-[7.5%] transform -translate-x-1/2 w-[85%]
+          sm:top-[36.6%] sm:w-[1200px] sm:left-[8.7%]
           transition-opacity duration-300
           ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}
         `}
@@ -153,7 +154,7 @@ const Main = () => {
             placeholder="검색어를 입력해보세요!!"
             className="w-full bg-transparent outline-none text-gray-800 placeholder-gray-400 text-lg pl-2"
           />
-          <button type="submit" className="text-lime-500">
+          <button type="submit" className="text-yellow-400">
             <Search size={24} strokeWidth={3} />
           </button>
         </form>
@@ -161,18 +162,33 @@ const Main = () => {
 
       {/* 본문 */}
       <div
-      className="bg-white w-full rounded-t-3xl shadow-xl z-30 p-6 space-y-10 mt-[70vh] opacity-0 animate-slide-up">
-      <h1 className='text-3xl font-bold text-center mb-6' style={{ position: 'relative' }}혼밥 맛집 추천></h1>
-      
+      className="bg-white w-full rounded-t-3xl shadow-xl p-6 space-y-5 mt-[70vh] opacity-0 animate-slide-up">
+      <div className="flex justify-left items-center space-x-3 mt-2"> 
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div className="flex items-center space-x-3 mt-5 p-1">
+    <FilterDropdown
+      label="전체 지역"
+      options={['전체 지역', '서울', '경기도', '강원도', '충청도', '전라도', '경상도']}
+      selected={region}
+      setSelected={setRegion}
+    />
+    <FilterDropdown
+      label="기본 정렬"
+      options={['기본 정렬', '평점 높은 순', '혼밥 점수 높은 순', '리뷰 많은 순']}
+      selected={sort}
+      setSelected={setSort}
+    />
+  </div>
+</div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {sampleData.map((shop) => (
             <div key={shop.id} className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition">
               <img src={shop.image} alt={shop.name} className="w-full h-48 object-cover" />
               <div className="p-4">
                 <h2 className="text-lg font-bold">{shop.name}</h2>
                 <p className="text-gray-500 text-sm">📍 {shop.location}</p>
-                <p className="text-green-500 text-sm">⭐ {shop.rating} / 혼밥 점수 {shop.soloScore}</p>
+                <p className="text-yellow-500 text-sm">⭐ {shop.rating} / 혼밥 점수 {shop.soloScore}</p>
                 <div className="mt-2 flex flex-wrap gap-1">
                   {shop.tags.map((tag, idx) => (
                     <span key={idx} className="bg-gray-100 text-xs px-2 py-1 rounded-full">#{tag}</span>
