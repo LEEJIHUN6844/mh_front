@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, User, Search } from 'lucide-react';
 import { Heart } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Mousewheel } from 'swiper/modules';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
 {/* 오른쪽 상단 햄버거 메뉴 */}
 const HamburgerMenu = ({ isOpen, setIsOpen }) => {
@@ -14,7 +15,7 @@ const HamburgerMenu = ({ isOpen, setIsOpen }) => {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-4 right-4 z-50 text-green p-2"
+        className="absolute top-4 right-4 z-50 text-white p-2"
       >
         {isOpen ? <X size={28} /> : <Menu size={30} />}
       </button>
@@ -54,8 +55,8 @@ const categories = [
 const SwiperSection = () => {
   return (
     <div
-      className="bg-white w-full rounded-t-3xl shadow-xl z-30 p-6 space-y-12 mt-[68vh] opacity-0 animate-slide-up"
-      style={{ position: 'relative' }}
+      className="bg-white w-full rounded-t-3xl shadow-xl z-30 p-6 space-y-5 mt-[65vh] opacity-0 animate-slide-up"
+      style={{ position: 'relative' }} 
     >
       {categories.map((section, idx) => (
         <div key={idx}>
@@ -71,7 +72,7 @@ const SwiperSection = () => {
             {section.cities.map((city, index) => (
               <SwiperSlide key={index}>
                 <div
-                  className="w-full h-[200px] rounded-xl bg-cover bg-center shadow-md flex items-center justify-center text-white font-bold text-sm"
+                  className="w-full h-[200px] rounded-xl bg-cover bg-center shadow-md flex items-center justify-center text-white font-bold text-xl"
                   style={{
                     backgroundImage: `url(/assets/${city}.jpg)`,
                   }}
@@ -145,27 +146,23 @@ const Main = () => {
   }
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full min-h-screen overflow-hidden">
       {/* 🖼️ 배경 이미지 */}
       <img
-        src="/assets/제주도사진.jpg"
+        src="/assets/바다.jpg"
         alt="제주도 배경"
-        className="absolute top-0 left-0 w-full sm:w-full sm:h-[37%] z-10"
+        className="absolute top-0 left-0 w-full sm: w-[100%] sm: h-[50%] h-[600px] object-cover object-bottom z-10"
       />
       {/* 마이페이지 바로 가기 버튼 */}
-      <button
-        onClick={() => navigate('/mypage')}
-        className="fixed bottom-8 right-8 flex items-center bg-green-500 text-white px-4 py-2 rounded-full shadow-lg transition z-50"
-      >
-        <Heart size={40} />
-      </button>
+      <MyPageButtonWithPopup />
+
 
       {/* 왼쪽 상단 로그인 일러스트 및 바로가기 */}
       <button
         onClick={handleLoginClick}
         className="absolute top-5 left-5 bg-glass text-black px-3 py-1 rounded-md shadow-md z-50 flex items-center"
       >
-        <User size={20} className="text-black" />
+        <User size={20} className="text-white" />
         <span className="font-bold">{isLoggedIn ? '' : ''}</span>
       </button>
 
@@ -173,16 +170,19 @@ const Main = () => {
       <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
 
      {/* 타이틀 문구 */}
-<div className="absolute top-[5%] left-6 z-40 text-white font-bold text-5xl sm:text-7xl space-y-2 drop-shadow-md opacity-0 animate-slide-up">
+<div className="absolute top-[5%] left-5 z-40 text-white font-bold text-6xl sm:text-7xl space-y-2 drop-shadow-md opacity-0 animate-slide-up">
   <p>모험의 순간</p>
   <p>자연과 함께</p>
 </div>
 
 {/* 🔍 검색창 */}
 <div
-  className={`absolute
-    top-[26%] sm:top-[565px] left-[7.5%] sm:left-[15.6%] transform -translate-x-1/2 w-[85%] sm:w-[1000px]
-    transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}
+  className={`
+    absolute top-[29%] left-[7.5%] transform -translate-x-1/2 w-[85%]
+    sm:top-[29%] sm:w-[1200px] md:left-[8.8%]
+    2xl:top-[39.5%] 2xl:w-[85%] 2xl:left-[7.5%]
+    transition-opacity duration-300
+    ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}
   `}
 >
   <form className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200">
