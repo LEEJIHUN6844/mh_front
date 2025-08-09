@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, User, Search, Heart } from 'lucide-react';
 import FilterDropdown from '../pages/FilterDropdown';
+import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
 // 샘플 데이터
 const sampleData = [
@@ -21,7 +22,7 @@ const sampleData = [
     rating: 4.4,
     soloScore: 90,
     tags: ['셀프 체크인', '프라이버시 보장', '혼자 여행객 인기'],
-    image: '/assets/셀프 체크인 호텔.jpg',
+    image: '/assets/셀프체크인호텔.jpg',
   },
   {
     id: 3,
@@ -30,7 +31,7 @@ const sampleData = [
     rating: 4.7,
     soloScore: 93,
     tags: ['오션뷰', '1인실 선택 가능', '조용한 휴식'],
-    image: '/assets/바다뷰 게스트하우스.jpg',
+    image: '/assets/바다뷰게스트하우스.jpg',
   },
   {
     id: 4,
@@ -122,9 +123,7 @@ const Main = () => {
       />
 
       {/* 마이페이지 버튼 */}
-      <button onClick={() => navigate('/mypage')} className="fixed bottom-8 right-8 bg-gray-400 text-white p-3 rounded-full z-50">
-        <Heart size={32} />
-      </button>
+      <MyPageButtonWithPopup />
       {/* 로그인/회원가입 */}
       <button onClick={handleLoginClick} className="absolute top-5 left-5 z-50 flex items-center bg-glass text-white px-3 py-1 rounded-md shadow-md">
         <User size={20} />
@@ -141,8 +140,9 @@ const Main = () => {
       {/* 검색창 */}
       <div
         className={`
-          absolute top-[23%] left-[7.5%] transform -translate-x-1/2 w-[85%]
+          absolute top-[22.8%] left-[7.5%] transform -translate-x-1/2 w-[85%]
           sm:top-[36.6%] sm:w-[1200px] sm:left-[8.7%]
+          2xl:top-[40.5%] 2xl:w-[1400px] 2xl:left-[13.2%]
           transition-opacity duration-300
           ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}
         `}
