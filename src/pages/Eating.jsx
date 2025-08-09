@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, User, Search, Heart } from 'lucide-react';
 import FilterDropdown from '../pages/FilterDropdown';
+import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
 // 샘플 데이터
-const sampleData = [
+const EatingData = [
   {
     id: 1,
     name: '후지마제소바',
@@ -26,7 +27,7 @@ const sampleData = [
   {
     id: 3,
     name: '속초 해물탕',
-    location: '강원 속초',
+    location: '강원도 속초',
     rating: 4.6,
     soloScore: 88,
     tags: ['빠른 서빙', '매운맛 좋아하는 사람'],
@@ -35,7 +36,7 @@ const sampleData = [
   {
     id: 4,
     name: '춘천 닭갈비',
-    location: '강원 춘천',
+    location: '강원도 춘천',
     rating: 4.8,
     soloScore: 95,
     tags: ['넓은 실내', '혼자 방문 및 단체 손님'],
@@ -44,7 +45,7 @@ const sampleData = [
   {
     id: 5,
     name: '돈까스 명가',
-    location: '경기 수원',
+    location: '경기도 수원',
     rating: 4.5,
     soloScore: 92,
     tags: ['혼밥 최적화', '모밀도 함께 가능'],
@@ -82,6 +83,28 @@ const Main = () => {
   const navigate = useNavigate();
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
+  
+  const filteredData = EatingData
+  .filter((shop) => {
+    // 지역 필터링
+    if (region && region !== '전체 지역') {
+      return shop.location.includes(region);
+    }
+    return true;
+  })
+  .sort((a, b) => {
+    if (sort === '평점 높은 순') {
+      return b.rating - a.rating;
+    } else if (sort === '혼밥 점수 높은 순') {
+      return b.soloScore - a.soloScore;
+    } else if (sort === '리뷰 많은 순') {
+      // 예시: 리뷰 수 없으니 임시로 soloScore로 대체
+      return b.soloScore - a.soloScore;
+    } else {
+      return 0; // 기본 정렬 유지
+    }
+  });
+
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
@@ -111,7 +134,6 @@ const Main = () => {
     }, 800);
   };
 
-  
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-gray-50">
@@ -123,9 +145,7 @@ const Main = () => {
       />
 
       {/* 마이페이지 버튼 */}
-      <button onClick={() => navigate('/mypage')} className="fixed bottom-8 right-8 bg-yellow-400 text-white p-3 rounded-full z-50">
-        <Heart size={32} />
-      </button>
+      <MyPageButtonWithPopup />
       {/* 로그인/회원가입 */}
       <button onClick={handleLoginClick} className="absolute top-5 left-5 z-50 flex items-center bg-glass text-white px-3 py-1 rounded-md shadow-md">
         <User size={20} />
@@ -142,8 +162,9 @@ const Main = () => {
       {/* 검색창 */}
       <div
         className={`
-          absolute top-[23%] left-[7.5%] transform -translate-x-1/2 w-[85%]
+          absolute top-[22.8%] left-[7.5%] transform -translate-x-1/2 w-[85%]
           sm:top-[36.6%] sm:w-[1200px] sm:left-[8.7%]
+          2xl:top-[40.5%] 2xl:w-[1400px] 2xl:left-[13.2%]
           transition-opacity duration-300
           ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}
         `}
@@ -163,7 +184,7 @@ const Main = () => {
       {/* 본문 */}
       <div
       className="bg-white w-full rounded-t-3xl shadow-xl p-6 space-y-5 mt-[70vh] opacity-0 animate-slide-up">
-      <div className="flex justify-left items-center space-x-3 mt-2"> 
+      <div className="flex justify-left items-center space-x-3 mt-1"> 
 
   <div className="flex items-center space-x-3 mt-5 p-1">
     <FilterDropdown
@@ -182,7 +203,7 @@ const Main = () => {
 </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {sampleData.map((shop) => (
+          {filteredData.map((shop) => (
             <div key={shop.id} className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition">
               <img src={shop.image} alt={shop.name} className="w-full h-48 object-cover" />
               <div className="p-4">
