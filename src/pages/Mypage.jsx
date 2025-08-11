@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, User, Search } from 'lucide-react';
-import { Heart } from 'lucide-react';
+import { Menu, X, User, Utensils, } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Mousewheel } from 'swiper/modules';
 import { Pagination } from 'swiper/modules';
@@ -321,7 +320,7 @@ const Main = () => {
       <img
         src="/assets/마이페이지.jpg"
         alt="마이페이지 배경"
-        className="absolute top-0 left-0 w-full sm: w-full sm: h-[50%] h-[600px] object-cover object-bottom z-10"
+        className="absolute top-0 left-0 w-full sm: w-full sm: h-[40%] object-cover z-10"
       />
       {/* 마이페이지 바로 가기 버튼 */}
       <MyPageButtonWithPopup />
