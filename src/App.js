@@ -9,6 +9,7 @@ import Main from './pages/Main.jsx';
 import Eating from './pages/Eating.jsx';
 import Logout from './pages/Logout.jsx';
 import Loding from './pages/Loading.jsx';
+import Roadmap from './pages/Roadmap.jsx';
 
 
 function AppRoutes() {
@@ -25,6 +26,7 @@ function AppRoutes() {
           <Route path="/login" element={<Signup />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/loading" element={<Loding />} />
+          <Route path="/Roadmap" element={<Roadmap />} />
         </Routes>
       </div>
     </Router>
