@@ -9,6 +9,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
+
 {/* 오른쪽 상단 햄버거 메뉴 */}
 const HamburgerMenu = ({ isOpen, setIsOpen }) => {
   return (
@@ -151,7 +152,7 @@ const Main = () => {
       <img
         src="/assets/바다.jpg"
         alt="제주도 배경"
-        className="absolute top-0 left-0 w-full sm: w-[100%] sm: h-[50%] h-[600px] object-cover object-bottom z-10"
+        className="absolute top-0 left-0 w-full sm: w-[100%] sm: h-[55%] h-[600px] object-cover object-bottom z-10"
       />
       {/* 마이페이지 바로 가기 버튼 */}
       <MyPageButtonWithPopup />
