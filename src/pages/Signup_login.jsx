@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LogoutModalPage from './Logout.jsx';
 
 const Signup = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -28,6 +29,7 @@ const Signup = () => {
             <button className="w-fit self-end bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full transition">
               Log in
             </button>
+            <LogoutModalPage />
           </div>
 
           {/* 회원가입 폼 */}
