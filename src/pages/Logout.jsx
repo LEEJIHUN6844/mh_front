@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,res } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function LogoutModalPage() {
@@ -7,21 +7,24 @@ function LogoutModalPage() {
 
   const handleLogout = async () => {
     try {
-      // 로그아웃 요청 예시 (백엔드에 POST 요청)
-      await fetch('/logout', {
-        method: 'POST',
-        credentials: 'include', // 세션 기반이면 이거 포함
+      // 로그아웃 요청
+      const res = await fetch("http://localhost:8000/api/logout", {
+        method: "POST",
+        credentials: "include", // 쿠키 포함
       });
-
-      // 토큰 기반이라면 localStorage 제거
-      localStorage.removeItem('token');
-
-      // 로그인 페이지로 이동
-      navigate('/');
+  
+      if (res.ok) {
+        localStorage.removeItem("token");
+        console.log("로그아웃 성공");
+        navigate("/");
+      } else {
+        console.error("로그아웃 실패:", res.status);
+      }
     } catch (error) {
-      console.error('로그아웃 실패:', error);
+      console.error("로그아웃 실패:", error);
     }
   };
+  
 
   return (
     <div>
