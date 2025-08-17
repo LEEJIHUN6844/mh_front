@@ -40,7 +40,7 @@ const MyPageButtonWithPopup = () => {
           className="px-3 py-2 w-40 text-center hover:bg-gray-100 border-b border-gray-200 w-full text-left"
           onClick={() => {
             setIsOpen(false);
-            navigate('/Loadmap');
+            navigate('/Roadmap');
           }}
         >
           로드맵 페이지 이동
