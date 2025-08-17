@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 
-const SleepingReview = () => {
+const EatingReview = () => {
   const { storeId } = useParams();
   const [shop, setShop] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -51,4 +51,4 @@ const SleepingReview = () => {
   );
 };
 
-export default SleepingReview;
+export default EatingReview;
