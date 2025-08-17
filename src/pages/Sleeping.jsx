@@ -4,56 +4,6 @@ import { Menu, X, User, Search, Heart } from 'lucide-react';
 import FilterDropdown from '../pages/FilterDropdown';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
-// 샘플 데이터
-const sampleData = [
-  {
-    id: 1,
-    name: '서울 1인 감성호텔',
-    location: '서울 강남구',
-    rating: 4.8,
-    soloScore: 96,
-    tags: ['1인 전용 객실', '조용한 분위기', '감성 인테리어'],
-    image: '/assets/감성호텔.jpg',
-  },
-  {
-    id: 2,
-    name: '신촌 셀프 체크인 모텔',
-    location: '서울 신촌',
-    rating: 4.4,
-    soloScore: 90,
-    tags: ['셀프 체크인', '프라이버시 보장', '혼자 여행객 인기'],
-    image: '/assets/셀프체크인호텔.jpg',
-  },
-  {
-    id: 3,
-    name: '속초 바다뷰 게스트하우스',
-    location: '강원 속초',
-    rating: 4.7,
-    soloScore: 93,
-    tags: ['오션뷰', '1인실 선택 가능', '조용한 휴식'],
-    image: '/assets/바다뷰게스트하우스.jpg',
-  },
-  {
-    id: 4,
-    name: '춘천 조용한 펜션',
-    location: '강원 춘천',
-    rating: 4.6,
-    soloScore: 92,
-    tags: ['혼자 힐링', '자연 속 숙소', '취사가능'],
-    image: '/assets/펜션.jpg',
-  },
-  {
-    id: 5,
-    name: '수원 미니 원룸텔',
-    location: '경기 수원',
-    rating: 4.3,
-    soloScore: 88,
-    tags: ['가성비 숙소', '1인 전용', '장기 투숙 가능'],
-    image: '/assets/원룸텔.jpg',
-  },
-];
-
-
 // 햄버거 메뉴
 const HamburgerMenu = ({ isOpen, setIsOpen }) => (
   <>
@@ -76,19 +26,86 @@ const HamburgerMenu = ({ isOpen, setIsOpen }) => (
   </>
 );
 
-// ✅ Main 컴포넌트
 const Main = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
+  const [sleepData, setSleepData] = useState([]);
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
+  const [likedShops, setLikedShops] = useState([]);
+  const navigate = useNavigate();
 
+  // 데이터 fetch
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const sleepRes = await fetch('http://localhost:8000/api/sleeping');
+        const sleepJson = await sleepRes.json();
+        setSleepData(sleepJson.data || []);
+
+        const likeRes = await fetch("http://localhost:8000/api/mypage", { credentials: "include" });
+        const likeJson = await likeRes.json();
+        setLikedShops(likeJson.likes.map(like => like.item_name));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
+
+  // 좋아요 토글
+  const toggleLike = async (sleep) => {
+    const isLiked = likedShops.includes(sleep.name);
+    try {
+      if (isLiked) {
+        await fetch(`http://localhost:8000/api/likes?item_name=${encodeURIComponent(sleep.name)}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        setLikedShops(prev => prev.filter(name => name !== sleep.name));
+        alert(`${sleep.name} 좋아요 취소`);
+      } else {
+        await fetch("http://localhost:8000/api/likes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            store_id: sleep.storeId,
+            keyword: sleep.keyword,
+            item_name: sleep.name,
+            address: sleep.address,
+            category: sleep.category,
+            image: `/assets/혼숙/${sleep.storeId}.jpg`,
+          }),
+        });
+        setLikedShops(prev => [...prev, sleep.name]);
+        alert(`${sleep.name} 좋아요`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("서버 오류 발생");
+    }
+  };
+
+  // 필터 + 정렬
+  const filteredData = sleepData
+    .filter(sleep => region && region !== '전체 지역' ? sleep.address.includes(region) : true)
+    .sort((a, b) => {
+      if (sort === '평점 높은 순') return b.rating - a.rating;
+      if (sort === '혼숙 점수 높은 순') return b.soloScore - a.soloScore;
+      if (sort === '리뷰 많은 순') return b.review_cnt - a.review_cnt;
+      return 0;
+    });
+
+  const handleLoginClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      navigate('/Signup');
+      setIsLoading(false);
+    }, 800);
+  };
 
   if (isLoading) {
     return (
@@ -104,111 +121,84 @@ const Main = () => {
     );
   }
 
-  const handleLoginClick = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      navigate('/Signup');
-      setIsLoggedIn(true);
-      setIsLoading(false);
-    }, 800);
-  };
-
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-gray-50">
-      {/* 🖼️ 배경 이미지 */}
-      <img
-        src="/assets/혼숙.jpg"
-        alt="혼숙 배경"
-        className="absolute top-0 left-0 w-full h-[25%] sm:w-full sm:h-[50%] object-cover object-bottom"
-      />
-
-      {/* 마이페이지 버튼 */}
-      <MyPageButtonWithPopup />
-      {/* 로그인/회원가입 */}
-      <button onClick={handleLoginClick} className="absolute top-5 left-5 z-50 flex items-center bg-glass text-white px-3 py-1 rounded-md shadow-md">
-        <User size={20} />
-      </button>
-
-      <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
-
-      {/* 타이틀 */}
-      <div className="absolute sm:top-[5%] sm:left-10 top-[3%] left-3 z-40 text-gray-300 font-bold text-7xl drop-shadow-md animate-slide-up">
-        <p>혼자서도</p>
-        <p>편하게</p>
-      </div>
+      {/* 배경 */}
+      <div
+        className="fixed inset-0 h-[70vh] sm:h-[75vh] bg-center bg-cover -z-5"
+        style={{ backgroundImage: "url('/assets/혼숙.jpg')", backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat' }}
+      ></div>
 
       {/* 검색창 */}
-      <div
-        className={`
-          absolute top-[22.8%] left-[7.5%] transform -translate-x-1/2 w-[85%]
-          sm:top-[36.6%] sm:w-[1200px] sm:left-[8.7%]
-          2xl:top-[40.5%] 2xl:w-[1400px] 2xl:left-[13.2%]
-          transition-opacity duration-300
-          ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}
-        `}
-      >
+      <div className={`absolute top-[67.5vh] left-[7.5%] w-[80vw] min-w-[85%] transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}`}>
         <form className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200">
-          <input
-            type="search"
-            placeholder="검색어를 입력해보세요!!"
-            className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg pl-2"
-          />
+          <input type="search" placeholder="검색어를 입력해보세요!!" className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg pl-2" />
           <button type="submit" className="text-gray-500">
             <Search size={24} strokeWidth={3} />
           </button>
         </form>
       </div>
 
-      {/* 본문 */}
-      <div
-      className="bg-white w-full rounded-t-3xl shadow-xl p-6 space-y-5 mt-[70vh] opacity-0 animate-slide-up">
-      <div className="flex justify-left items-center space-x-3 mt-2"> 
+      {/* 마이페이지 버튼 */}
+      <MyPageButtonWithPopup />
 
-  <div className="flex items-center space-x-3 mt-5 p-1">
-    <FilterDropdown
-      label="전체 지역"
-      options={['전체 지역', '서울', '경기도', '강원도', '충청도', '전라도', '경상도']}
-      selected={region}
-      setSelected={setRegion}
-    />
-    <FilterDropdown
-      label="기본 정렬"
-      options={['기본 정렬', '평점 높은 순', '혼밥 점수 높은 순', '리뷰 많은 순']}
-      selected={sort}
-      setSelected={setSort}
-    />
-  </div>
-</div>
+      {/* 로그인 버튼 */}
+      <button onClick={handleLoginClick} className="absolute top-5 left-5 z-50 flex items-center bg-glass text-white px-3 py-1 rounded-md shadow-md">
+        <User size={20} />
+      </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {sampleData.map((shop) => (
-            <div key={shop.id} className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition">
-              <img src={shop.image} alt={shop.name} className="w-full h-48 object-cover" />
+      {/* 햄버거 메뉴 */}
+      <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
+
+      {/* 타이틀 */}
+      <div className="fixed sm:top-[12%] sm:left-10 top-[9%] left-3 text-gray-300 font-bold text-7xl drop-shadow-md animate-slide-up">
+        <p>혼자서도</p>
+        <p>편하게</p>
+      </div>
+
+      {/* 리스트 */}
+      <div className="bg-white w-full rounded-t-3xl shadow-xl p-6 space-y-5 mt-[70vh] opacity-0 animate-slide-up">
+        <div className="flex items-center space-x-3 mt-5 p-1">
+          <FilterDropdown label="전체 지역" options={['전체 지역', '서울', '경기', '강원', '충청', '전라', '경상']} selected={region} setSelected={setRegion} />
+          <FilterDropdown label="기본 정렬" options={['기본 정렬', '평점 높은 순', '혼숙 점수 높은 순', '리뷰 많은 순']} selected={sort} setSelected={setSort} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-[150px]">
+          {filteredData.map(sleep => (
+            <div key={sleep.storeId} className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition relative cursor-pointer" onClick={() => navigate(`/sleeping/${sleep.storeId}`)}>
+              <img src={`/assets/혼숙/${sleep.storeId}.jpg`} alt={sleep.name} className="w-full h-48 object-cover object-center" onError={e => e.currentTarget.src = '/assets/default.jpg'} />
               <div className="p-4">
-                <h2 className="text-lg font-bold">{shop.name}</h2>
-                <p className="text-gray-500 text-sm">📍 {shop.location}</p>
-                <p className="text-gray-800 text-sm">⭐ {shop.rating} / 혼숙 점수 {shop.soloScore}</p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {shop.tags.map((tag, idx) => (
-                    <span key={idx} className="bg-gray-100 text-xs px-2 py-1 rounded-full">#{tag}</span>
-                  ))}
-                </div>
+                <h2 className="text-lg font-bold">{sleep.name}</h2>
+                <p className="text-gray-500 text-sm">📍 {sleep.address}</p>
+                <p className="text-gray-500 text-sm">⭐ {sleep.rating} / 혼숙 점수 {sleep.soloScore}</p>
+                <p className="text-gray-400 text-xs">{sleep.category}</p>
+              </div>
+              <div className="absolute bottom-2 right-2">
+                <button
+                  className={`p-1.5 rounded-full shadow transition ${likedShops.includes(sleep.name) ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'}`}
+                  onClick={e => {
+                    e.stopPropagation();
+                    toggleLike(sleep);
+                  }}
+                >
+                  <Heart size={24} />
+                </button>
               </div>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* 하단 문구 */}
-      <div className="mt-10 p-4 bg-glass opacity-20 w-full pl-6">
-  <div className="w-full h-px bg-black mb-2" /> 
-  <p className="text-black font-semibold text-lg text-left">
-    멋쟁이사자처럼 13기 해커톤 프로젝트 <br />
-    😎우리조잘했조 - 이지훈 김정현 송원영<br />
-    프로젝트 기간: 2025.00.00 ~ 2025.08.26
-  </p>
-  </div>
-</div>
+        {/* 하단문구 */}
+        <div className="mt-10 p-4 bg-glass opacity-20 w-full pl-6">
+          <div className="w-full h-px bg-black mb-2" />
+          <p className="text-black font-semibold text-lg text-left">
+            멋쟁이사자처럼 13기 해커톤 프로젝트 <br />
+            😎우리조잘했조 - 이지훈 김정현 송원영<br />
+            프로젝트 기간: 2025.00.00 ~ 2025.08.26
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
