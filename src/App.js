@@ -10,6 +10,9 @@ import Eating from './pages/Eating.jsx';
 import Logout from './pages/Logout.jsx';
 import Loding from './pages/Loading.jsx';
 import Roadmap from './pages/Roadmap.jsx';
+import EatingReview from './pages/EatingReview';
+import PlayingReview from './pages/PlayingReview.jsx';
+import SleepingReview from './pages/SleepingReview.jsx';
 
 
 function AppRoutes() {
@@ -26,7 +29,13 @@ function AppRoutes() {
           <Route path="/login" element={<Signup />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/loading" element={<Loding />} />
-          <Route path="/Roadmap" element={<Roadmap />} />
+          <Route path="/roadmap" element={<Roadmap />} />
+          <Route path="/eating/:storeId" element={<EatingReview />} />
+          <Route path="/playing/:storeId" element={<PlayingReview />} />
+          <Route path="/sleeping/:storeId" element={<SleepingReview />} />
+          <Route path="/store/eating/:storeId" element={<EatingReview />} />
+          <Route path="/store/playing/:storeId" element={<PlayingReview />} />
+          <Route path="/store/sleeping/:storeId" element={<SleepingReview />} />
         </Routes>
       </div>
     </Router>
