@@ -32,6 +32,7 @@ const HamburgerMenu = ({ isOpen, setIsOpen }) => (
   </>
 );
 
+
 // SwiperSection 컴포넌트
 const SwiperSection = ({ likes, keywordFilter, title }) => {
   const navigate = useNavigate();
@@ -143,18 +144,19 @@ const Main = () => {
   }
 
 
-  // Main 페이지 JSX
+  // Mypage 페이지 JSX
   return (
-    <div className="relative w-full min-h-screen bg-gray-50 overflow-x-hidden animate-slide-up">
+    <div className="relative w-full min-h-screen bg-gray-50 overflow-x-hidden">
+      <MyPageButtonWithPopup />
       {/* 배경 이미지 */}
       <div className="w-full h-[85vh] relative">
         <img src="/assets/마이페이지.jpg" alt="마이페이지 배경" className="absolute top-0 left-0 w-full h-full object-cover" />
-        <MyPageButtonWithPopup />
         <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
-        <div className="absolute top-[15%] sm:top-[12%] left-5 text-white font-bold text-5xl sm:text-7xl drop-shadow-md z-10">
+        <div className="absolute top-[15%] sm:top-[12%] left-5 text-white font-bold text-5xl sm:text-7xl drop-shadow-md z-10 animate-slide-up">
           {userName ? `${userName}님 환영합니다` : '마이페이지'}
         </div>
       </div>
+
 
       {/* 로그인 버튼 */}
       <button onClick={handleLoginClick} className="absolute top-5 left-5 bg-glass text-black px-3 py-1 rounded-md shadow-md z-50 flex items-center"> 
@@ -164,7 +166,7 @@ const Main = () => {
       {/* 큰 div 박스 */}
       <div className="relative z-20 -mt-10 bg-white rounded-t-3xl shadow-2xl p-6 space-y-8 animate-slide-up">
         <SwiperSection likes={likes} keywordFilter="맛집" title="🍚혼밥 좋아요 목록" />
-        <SwiperSection likes={likes} keywordFilter="놀곳" title="🛝혼놀 좋아요 목록" />
+        <SwiperSection likes={likes} keywordFilter="놀곳" title="🎮혼놀 좋아요 목록" />
         <SwiperSection likes={likes} keywordFilter="숙소" title="🛏️혼숙 좋아요 목록" />
       </div>
 
