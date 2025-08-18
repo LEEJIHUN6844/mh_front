@@ -32,6 +32,7 @@ const Main = () => {
   const [sleepData, setSleepData] = useState([]);
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [likedShops, setLikedShops] = useState([]);
   const navigate = useNavigate();
 
@@ -89,12 +90,13 @@ const Main = () => {
     }
   };
 
-  // 필터 + 정렬
+  // 필터 + 정렬 + 검색
   const filteredData = sleepData
     .filter(sleep => region && region !== '전체 지역' ? sleep.address.includes(region) : true)
+    .filter(sleep => searchTerm ? sleep.name.includes(searchTerm) : true) // 검색어 필터 추가
     .sort((a, b) => {
       if (sort === '평점 높은 순') return b.rating - a.rating;
-      if (sort === '혼숙 점수 높은 순') return b.soloScore - a.soloScore;
+      if (sort === '혼숙 점수 높은 순') return b.hon0_index - a.hon0_index;
       if (sort === '리뷰 많은 순') return b.review_cnt - a.review_cnt;
       return 0;
     });
@@ -105,6 +107,11 @@ const Main = () => {
       navigate('/Signup');
       setIsLoading(false);
     }, 800);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // 검색 term 상태가 filteredData에 반영되므로 별도 로직 없음
   };
 
   if (isLoading) {
@@ -131,8 +138,14 @@ const Main = () => {
 
       {/* 검색창 */}
       <div className={`absolute top-[67.5vh] left-[7.5%] w-[80vw] min-w-[85%] transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}`}>
-        <form className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200">
-          <input type="search" placeholder="검색어를 입력해보세요!!" className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg pl-2" />
+        <form onSubmit={handleSearch} className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200">
+          <input
+            type="search"
+            placeholder="검색어를 입력해보세요!!"
+            className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg pl-2"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
           <button type="submit" className="text-gray-500">
             <Search size={24} strokeWidth={3} />
           </button>
@@ -170,7 +183,7 @@ const Main = () => {
               <div className="p-4">
                 <h2 className="text-lg font-bold">{sleep.name}</h2>
                 <p className="text-gray-500 text-sm">📍 {sleep.address}</p>
-                <p className="text-gray-500 text-sm">⭐ {sleep.rating} / 혼숙 점수 {sleep.soloScore}</p>
+                <p className="text-gray-500 text-sm">⭐ {sleep.rating} / 혼숙 점수 {sleep.hon0_index}</p>
                 <p className="text-gray-400 text-xs">{sleep.category}</p>
               </div>
               <div className="absolute bottom-2 right-2">
