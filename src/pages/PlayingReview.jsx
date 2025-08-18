@@ -37,7 +37,7 @@ const PlayingReview = () => {
         onError={e => { e.currentTarget.src = '/assets/default.jpg'; }}
       />
       <p className="text-gray-600 mb-2">📍 {shop.address}</p>
-      <p className="text-gray-500 mb-4">⭐ {shop.rating} / 혼놀 점수 {shop.soloScore}</p>
+      <p className="text-gray-500 mb-4">⭐ {shop.rating} / 혼놀 점수 {shop.hon0_index}</p>
 
       <h2 className="text-2xl font-semibold mb-2">리뷰 ({reviews.length})</h2>
       <div className="space-y-4">
