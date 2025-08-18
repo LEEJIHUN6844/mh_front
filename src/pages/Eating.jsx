@@ -23,7 +23,6 @@ const HamburgerMenu = ({ isOpen, setIsOpen }) => (
   </>
 );
 
-
 const Main = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,29 +31,29 @@ const Main = () => {
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
   const [likedShops, setLikedShops] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchedShops, setSearchedShops] = useState([]);
   const navigate = useNavigate();
-  
-  // 가게 데이터 받아오기
+
   useEffect(() => {
-    // 데이터를 모두 받아오고 로딩 종료
     const fetchData = async () => {
       try {
         const shopRes = await fetch("http://localhost:8000/api/eating");
         const shopData = await shopRes.json();
         setShops(shopData.data || []);
+
         const likeRes = await fetch("http://localhost:8000/api/mypage", { credentials: "include" });
         const likeData = await likeRes.json();
         setLikedShops(likeData.likes.map(like => like.item_name));
       } catch (err) {
         console.error(err);
       } finally {
-        setIsLoading(false); // ✅ 로딩 종료
+        setIsLoading(false);
       }
     };
     fetchData();
   }, []);
-  
-  // 좋아요 토글
+
   const toggleLike = async (shop) => {
     const isLiked = likedShops.includes(shop.name);
     try {
@@ -92,12 +91,18 @@ const Main = () => {
     .filter(shop => region && region !== '전체 지역' ? shop.address.includes(region) : true)
     .sort((a, b) => {
       if (sort === '평점 높은 순') return b.rating - a.rating;
-      if (sort === '혼밥 점수 높은 순') return b.soloScore - a.soloScore;
+      if (sort === '혼밥 점수 높은 순') return b.hon0_index - a.hon0_index;
       if (sort === '리뷰 많은 순') return b.review_cnt - a.review_cnt;
       return 0;
     });
 
-    // 로그인 버튼 클릭
+  const handleSearch = () => {
+    const result = shops.filter(shop =>
+      shop.name.includes(searchQuery) || shop.address.includes(searchQuery)
+    );
+    setSearchedShops(result);
+  };
+
   const handleLoginClick = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -107,7 +112,6 @@ const Main = () => {
     }, 800);
   };
 
-  // ✅ 로딩 화면
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -134,27 +138,42 @@ const Main = () => {
     );
   }
 
+  const displayData = searchedShops.length > 0 ? searchedShops : filteredData;
+
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-gray-50">
       <div
         className="fixed inset-0 h-[70vh] sm:h-[75vh] bg-center bg-cover -z-5"
         style={{ backgroundImage: "url('/assets/혼밥.jpg')", backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat' }}
       ></div>
+
       {/* 검색창 */}
       <div className={`absolute top-[67.5vh] left-[7.5%] w-[80vw] min-w-[85%] transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}`}>
-        <form className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200">
-          <input type="search" placeholder="검색어를 입력해보세요!!" className="w-full bg-transparent outline-none text-gray-800 placeholder-gray-400 text-lg pl-2" />
+        <form
+          className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+        >
+          <input
+            type="search"
+            placeholder="검색어를 입력해보세요!!"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent outline-none text-gray-800 placeholder-gray-400 text-lg pl-2"
+          />
           <button type="submit" className="text-yellow-400">
             <Search size={24} strokeWidth={3} />
           </button>
         </form>
       </div>
 
-       {/* 로그인/회원가입 버튼 */}
-        <button onClick={handleLoginClick}
-          className="absolute top-5 left-5 z-50 flex items-center bg-glass text-white px-3 py-1 rounded-md shadow-md">
-          <User size={20} />
-        </button>
+      {/* 로그인/회원가입 버튼 */}
+      <button onClick={handleLoginClick}
+        className="absolute top-5 left-5 z-50 flex items-center bg-glass text-white px-3 py-1 rounded-md shadow-md">
+        <User size={20} />
+      </button>
 
       <MyPageButtonWithPopup />
       <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -171,7 +190,7 @@ const Main = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-[150px]">
-          {filteredData.map(shop => (
+          {displayData.map(shop => (
             <div
               key={shop.storeId}
               className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition relative cursor-pointer"
@@ -185,7 +204,7 @@ const Main = () => {
               <div className="p-4">
                 <h2 className="text-lg font-bold">{shop.name}</h2>
                 <p className="text-gray-500 text-sm">📍 {shop.address}</p>
-                <p className="text-yellow-500 text-sm">⭐ {shop.rating} / 혼밥 점수 {shop.soloScore}</p>
+                <p className="text-yellow-500 text-sm">⭐ {shop.rating} / 혼밥 점수 {shop.hon0_index}</p>
                 <p className="text-gray-400 text-xs">{shop.category}</p>
               </div>
               <div className="absolute bottom-2 right-2">
