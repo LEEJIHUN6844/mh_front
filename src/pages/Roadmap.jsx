@@ -1,81 +1,105 @@
-import { useState } from 'react'
-import { MapPin, ChartColumnStacked, ChartBarStacked, Shuffle } from 'lucide-react'
-import FilterDropdown from './FilterDropdown_Load.jsx'
+import { useState, useEffect } from 'react';
+import { MapPin, ChartBarStacked, Shuffle, Menu, X } from 'lucide-react';
+import FilterDropdown from './FilterDropdown_Load.jsx';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutModalPage from './Logout.jsx';
+import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
+
+// 햄버거 메뉴
+const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
+  <>
+    <button 
+      onClick={() => setIsOpen(!isOpen)} 
+      className="absolute top-4 right-4 z-50 text-gray-400 p-2"
+    >
+      {isOpen ? <X size={28} /> : <Menu size={30} />}
+    </button>
+
+    <div
+      className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}
+    >
+      <ul className="p-6 space-y-4">
+        <li className="flex justify-between items-center border-b border-gray-300 pb-2">
+          <Link to="/" onClick={() => setIsOpen(false)}>홈</Link>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogoutClick}
+              className="bg-red-500 text-white px-2 py-1 rounded-md text-sm shadow"
+            >
+              로그아웃
+            </button>
+          ) : (
+            <button
+              onClick={handleLoginClick}
+              className="bg-green-500 text-white px-2 py-1 rounded-md text-sm shadow"
+            >
+              로그인
+            </button>
+          )}
+        </li>
+        <li><Link to="/eating" onClick={() => setIsOpen(false)}>혼밥</Link></li>
+        <li><Link to="/playing" onClick={() => setIsOpen(false)}>혼놀</Link></li>
+        <li><Link to="/sleeping" onClick={() => setIsOpen(false)}>혼숙</Link></li>
+      </ul>
+    </div>
+
+    {isOpen && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsOpen(false)} />}
+  </>
+);
 
 export default function Loadmap() {
-  // 현재 선택된 지역 상태. 초기값은 '전체 지역'.
-  const [selectedRegion, setSelectedRegion] = useState('전체 지역')
-  // 체크박스 카테고리 상태 초기값은 모두 선택 X
-  const [checkboxCategories, setCheckboxCategories] = useState({
-    혼밥: false,
-    혼놀: false,
-    혼숙: false
-  })
-  // 스위치 카테고리 상태 초기값은 모두 선택 X
-  const [switchCategories, setSwitchCategories] = useState({
-    혼밥: false,
-    혼놀: false,
-    혼숙: false
-  })
-  // 스위치를 열었을때 체크박스 상태 초기값은 모두 선택 X
+  const navigate = useNavigate();
+
+  const [selectedRegion, setSelectedRegion] = useState('전체 지역');
+  const [switchCategories, setSwitchCategories] = useState({ 혼밥: false, 혼놀: false, 혼숙: false });
   const [switchCheckboxes, setSwitchCheckboxes] = useState({
     혼밥: { 혼밥: false, 혼놀: false, 혼숙: false },
     혼놀: { 혼밥: false, 혼놀: false, 혼숙: false },
     혼숙: { 혼밥: false, 혼놀: false, 혼숙: false }
-  })
-  // 지역 옵션 목록
+  });
+  const [selectedDays, setSelectedDays] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const regionOptions = [
     { value: '전체 지역', label: '전체 지역' },
     { value: '서울특별시 은평구', label: '서울특별시 은평구' },
-    { value: '경기도', label: '경기도' },
-    { value: '강원도', label: '강원도' },
-    { value: '충청도', label: '충청도' },
-    { value: '경상도', label: '경상도' },
-    { value: '전라도', label: '전라도' }
-  ]
-  // 체크박스 상태 변경 
-  const handleCheckboxChange = (category, checked) => {
-    setCheckboxCategories(prev => ({
-      ...prev,
-      [category]: checked
-    }))
-  }
-  // 스위치 상태 변경
+    { value: '덕양구', label: '덕양구' },
+    { value: '일산동구', label: '일산동구' },
+    { value: '일산서구', label: '일산서구' },
+  ];
+
   const handleSwitchChange = (category, checked) => {
-    setSwitchCategories(prev => ({
-      ...prev,
-      [category]: checked
-    }))
-  }
-  // 스위치 내 체크박스 상태 변경
+    setSwitchCategories(prev => ({ ...prev, [category]: checked }));
+  };
+
   const handleSwitchCheckboxChange = (switchCategory, checkboxCategory, checked) => {
     setSwitchCheckboxes(prev => ({
       ...prev,
-      [switchCategory]: {
-        ...prev[switchCategory],
-        [checkboxCategory]: checked
-      }
-    }))
-  }
-  
+      [switchCategory]: { ...prev[switchCategory], [checkboxCategory]: checked }
+    }));
+  };
+
+  const handleLoginClick = () => {
+    navigate('/Signup');
+    setIsLoggedIn(true);
+  };
+
+  const handleLogoutClick = () => setShowLogoutModal(true);
+
   return (
-    // 배경 그라데이션 및 최소 높이 설정
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6">
-      {/* 중앙 정렬 및 너비 최대*/}
       <div className="w-full max-w-3xl mx-auto">
-        {/* 배경색 설정 및 애니메이션 효과 설정 */}
         <div className="bg-white shadow-lg rounded-2xl p-8 min-h-[800px] animate-slide-up">
-          {/* 인사말 */}
           <div className="text-center space-y-2 mb-6">
-            <h1 className="text-2xl font-bold text-green-600">
-              안녕하세요, 로디에요 :) 🌿
-            </h1>
-            <p className="text-sm text-gray-600">
-              원하는 조건을 선택하고 나만의 로드맵을 만들어보세요!
-            </p>
+            <h1 className="text-2xl font-bold text-green-600">안녕하세요, 로디에요 :) 🌿</h1>
+            <p className="text-sm text-gray-600">원하는 조건을 선택하고 나만의 로드맵을 만들어보세요!</p>
           </div>
 
-          {/* 필터 드롭다운을 이용한 지역 선택창 */}
+          {/* 지역 필터 */}
           <div className="mb-6">
             <FilterDropdown
               label={<span className="flex items-center gap-2"><MapPin className="w-4 h-4" /> 지역</span>}
@@ -85,35 +109,10 @@ export default function Loadmap() {
               placeholder="지역을 선택하세요"
             />
           </div>
-
-          {/* 체크박스 카테고리 */}
-          <div className="mb-4">
-            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
-              <ChartColumnStacked className="w-4 h-4" /> 카테고리
-            </h2>
-            <div className="flex items-center justify-between mt-2">
-              {Object.entries(checkboxCategories).map(([category, checked]) => (
-                <div key={category} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`checkbox-${category}`}
-                    checked={checked}
-                    onChange={(e) => handleCheckboxChange(category, e.target.checked)}
-                    className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
-                  />
-                  <label htmlFor={`checkbox-${category}`} className="text-sm text-gray-700 cursor-pointer">
-                    {category}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* OR */}
-          <div className="text-center text-gray-400 my-5">or</div>
+          
 
           {/* 스위치 카테고리 */}
-          <div>
+          <div className="mb-6">
             <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
               <ChartBarStacked className="w-4 h-4" /> 카테고리
             </h2>
@@ -135,7 +134,7 @@ export default function Loadmap() {
                   {checked && (
                     <div className="ml-4 pl-4 border-l-2 border-gray-200">
                       <div className="flex items-center justify-between">
-                        {['혼밥', '혼놀', '혼숙'].map((checkboxCategory) => (
+                        {['혼밥', '혼놀', '혼숙'].map(checkboxCategory => (
                           <div key={`${category}-${checkboxCategory}`} className="flex items-center gap-2">
                             <input
                               type="checkbox"
@@ -156,61 +155,73 @@ export default function Loadmap() {
               ))}
             </div>
           </div>
-        {/* 선택 미리보기 */}
-        <div className="mt-8 p-3 bg-green-50 border border-green-100 rounded-lg">
-        <h3 className="text-md font-semibold text-green-700 mb-2">선택 미리보기</h3>
-        <p className="text-xs text-gray-500">
-            지역: {selectedRegion}
-        </p>
-        <p className="text-xs text-gray-500">
-            체크박스: {Object.entries(checkboxCategories)
-            .filter(([_, checked]) => checked)
-            .map(([category]) => category)
-            .join(', ') || '선택 없음'}
-        </p>
-        <p className="text-xs text-gray-500">
-            스위치: {Object.entries(switchCategories)
-            .filter(([_, checked]) => checked)
-            .map(([category]) => category)
-            .join(', ') || '선택 없음'}
-        </p>
-        <p className="text-xs text-gray-500">
-            스위치별 체크박스: {Object.entries(switchCheckboxes)
-            .map(([switchCategory, checkboxes]) => {
-            // 선택된 하위 체크박스만 필터링
-            const checkedItems = Object.entries(checkboxes)
-            .filter(([_, checked]) => checked)
-            .map(([checkboxCategory]) => checkboxCategory);
 
-            return `${switchCategory}: ${checkedItems.length > 0 ? checkedItems.join(', ') : '선택 없음'}`;
-            })
-            .join(' | ')}
-        </p>
+          {/* Tailwind 커스텀 슬라이더 */}
+          <div className="mb-6 mt-8">
+            <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2">
+              일수를 선택해주세요!
+            </h2>
+            <div className="relative w-full h-3 mt-2 bg-green-100 rounded-full">
+              {/* 채워진 바 */}
+              <div 
+                className="absolute left-0 top-0 h-3 bg-green-300 rounded-full transition-all duration-200"
+                style={{ width: `${((selectedDays-1)/(7-1))*100}%` }}
+              />
+              {/* Thumb */}
+              <div
+                className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-green-500 rounded-full shadow-lg cursor-pointer"
+                style={{ left: `${((selectedDays-1)/(7-1))*100}%` }}
+                onMouseDown={(e) => {
+                  const slider = e.currentTarget.parentElement;
+                  const onMouseMove = (ev) => {
+                    const rect = slider.getBoundingClientRect();
+                    let percent = (ev.clientX - rect.left) / rect.width;
+                    percent = Math.max(0, Math.min(1, percent));
+                    setSelectedDays(Math.round(percent * (7-1) + 1));
+                  };
+                  const onMouseUp = () => {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                  };
+                  window.addEventListener('mousemove', onMouseMove);
+                  window.addEventListener('mouseup', onMouseUp);
+                }}
+              />
+            </div>
+            <div className="text-sm text-gray-700 text-right mt-1">{selectedDays}일</div>
+          </div>
 
-        </div>
-
-
+          {/* 선택 미리보기 */}
+          <div className="mt-4 p-3 bg-green-50 border border-green-100 rounded-lg">
+            <h3 className="text-md font-semibold text-green-700 mb-2">선택 미리보기</h3>
+            <p className="text-xs text-gray-500">
+              지역: {selectedRegion}
+            </p>
+            <p className="text-xs text-gray-500">
+              스위치: {Object.entries(switchCategories).filter(([_, checked]) => checked).map(([category]) => category).join(', ') || '선택 없음'}
+            </p>
+            <p className="text-xs text-gray-500">
+              스위치별 체크박스: {Object.entries(switchCheckboxes)
+                .map(([switchCategory, checkboxes]) => {
+                  const checkedItems = Object.entries(checkboxes).filter(([_, checked]) => checked).map(([name]) => name);
+                  return `${switchCategory}: ${checkedItems.length > 0 ? checkedItems.join(', ') : '선택 없음'}`;
+                })
+                .join(' | ')}
+            </p>
+            <p className="text-xs text-gray-500">선택 일수: {selectedDays}일</p>
+          </div>
 
           {/* 버튼 */}
           <div className="pt-6 flex gap-3">
             <button 
               className="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg transition-transform transform hover:scale-105"
-              onClick={() => {
-                console.log('선택된 지역:', selectedRegion)
-                console.log('체크박스 카테고리:', checkboxCategories)
-                console.log('스위치 카테고리:', switchCategories)
-                console.log('스위치별 체크박스:', switchCheckboxes)
-              }}
+              onClick={() => console.log('선택:', { selectedRegion, switchCategories, switchCheckboxes, selectedDays })}
             >
               로드맵 만들어보기!!
             </button>
-            
             <button 
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg transition-colors flex items-center gap-1"
-              onClick={() => {
-                const randomRegion = regionOptions[Math.floor(Math.random() * regionOptions.length)].value
-                setSelectedRegion(randomRegion)
-              }}
+              onClick={() => setSelectedRegion(regionOptions[Math.floor(Math.random() * regionOptions.length)].value)}
             >
               <Shuffle className="w-4 h-4" /> 랜덤
             </button>
@@ -221,9 +232,24 @@ export default function Loadmap() {
         <div className="mt-5 text-left text-xs text-gray-400">
           멋쟁이사자처럼 13기 해커톤 프로젝트 <br />
           😎 우리조잘했조 - 이지훈 김정현 송원영 <br />
-          프로젝트 기간: 2025.00.00 ~ 2025.08.26
+          프로젝트 기간: 2025.08.06 ~ 2025.08.26
         </div>
       </div>
+
+      <HamburgerMenu
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        handleLoginClick={handleLoginClick}
+        handleLogoutClick={handleLogoutClick}
+        isLoggedIn={isLoggedIn}
+      />
+
+      {showLogoutModal && (
+        <LogoutModalPage setShowModal={setShowLogoutModal} setIsLoggedIn={setIsLoggedIn} />
+      )}
+      
+      <MyPageButtonWithPopup />
     </div>
-  )
+    
+  );
 }
