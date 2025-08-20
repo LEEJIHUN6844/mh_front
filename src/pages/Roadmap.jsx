@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import LogoutModalPage from './Logout.jsx';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
-// 햄버거 메뉴
+// ---------------- 햄버거 메뉴 ----------------
 const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
     <button 
@@ -49,9 +49,12 @@ const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick,
   </>
 );
 
+// ---------------- Loadmap 페이지 ----------------
 export default function Loadmap() {
   const navigate = useNavigate();
 
+  // 상태
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('전체 지역');
   const [switchCategories, setSwitchCategories] = useState({ 혼밥: false, 혼놀: false, 혼숙: false });
   const [switchCheckboxes, setSwitchCheckboxes] = useState({
@@ -72,6 +75,7 @@ export default function Loadmap() {
     { value: '일산서구', label: '일산서구' },
   ];
 
+  // ---------------- 스위치 핸들러 ----------------
   const handleSwitchChange = (category, checked) => {
     setSwitchCategories(prev => ({ ...prev, [category]: checked }));
   };
@@ -83,12 +87,36 @@ export default function Loadmap() {
     }));
   };
 
+  // ---------------- 로그인 상태 체크 ----------------
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/mypage', {
+          method: 'GET',
+          credentials: 'include', // 쿠키 전송
+        });
+        setIsLoggedIn(res.ok);
+      } catch (err) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkLogin();
+  }, []);
+
+  // ---------------- 버튼 핸들러 ----------------
   const handleLoginClick = () => {
-    navigate('/Signup');
-    setIsLoggedIn(true);
+    setIsLoading(true);
+    setTimeout(() => {
+      navigate('/Signup');
+      setIsLoggedIn(true);
+      setIsLoading(false);
+    }, 800);
   };
 
-  const handleLogoutClick = () => setShowLogoutModal(true);
+  const handleLogoutClick = () => {
+    setIsOpen(false);
+    setShowLogoutModal(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6">
@@ -109,7 +137,6 @@ export default function Loadmap() {
               placeholder="지역을 선택하세요"
             />
           </div>
-          
 
           {/* 스위치 카테고리 */}
           <div className="mb-6">
@@ -156,18 +183,16 @@ export default function Loadmap() {
             </div>
           </div>
 
-          {/* Tailwind 커스텀 슬라이더 */}
+          {/* 슬라이더 */}
           <div className="mb-6 mt-8">
             <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2">
               일수를 선택해주세요!
             </h2>
             <div className="relative w-full h-3 mt-2 bg-green-100 rounded-full">
-              {/* 채워진 바 */}
               <div 
                 className="absolute left-0 top-0 h-3 bg-green-300 rounded-full transition-all duration-200"
                 style={{ width: `${((selectedDays-1)/(7-1))*100}%` }}
               />
-              {/* Thumb */}
               <div
                 className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-green-500 rounded-full shadow-lg cursor-pointer"
                 style={{ left: `${((selectedDays-1)/(7-1))*100}%` }}
@@ -194,9 +219,7 @@ export default function Loadmap() {
           {/* 선택 미리보기 */}
           <div className="mt-4 p-3 bg-green-50 border border-green-100 rounded-lg">
             <h3 className="text-md font-semibold text-green-700 mb-2">선택 미리보기</h3>
-            <p className="text-xs text-gray-500">
-              지역: {selectedRegion}
-            </p>
+            <p className="text-xs text-gray-500">지역: {selectedRegion}</p>
             <p className="text-xs text-gray-500">
               스위치: {Object.entries(switchCategories).filter(([_, checked]) => checked).map(([category]) => category).join(', ') || '선택 없음'}
             </p>
@@ -236,6 +259,7 @@ export default function Loadmap() {
         </div>
       </div>
 
+      {/* 햄버거 메뉴, 모달, 마이페이지 버튼 */}
       <HamburgerMenu
         isOpen={isOpen}
         setIsOpen={setIsOpen}
@@ -245,11 +269,13 @@ export default function Loadmap() {
       />
 
       {showLogoutModal && (
-        <LogoutModalPage setShowModal={setShowLogoutModal} setIsLoggedIn={setIsLoggedIn} />
+        <LogoutModalPage 
+          setShowModal={setShowLogoutModal} 
+          setIsLoggedIn={setIsLoggedIn} 
+        />
       )}
       
       <MyPageButtonWithPopup />
     </div>
-    
   );
 }
