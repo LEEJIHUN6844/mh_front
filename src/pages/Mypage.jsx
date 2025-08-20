@@ -1,33 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X} from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Mousewheel } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
+import LogoutModalPage from './Logout.jsx';
 
 // 햄버거 메뉴
-const HamburgerMenu = ({ isOpen, setIsOpen }) => (
+const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
-    <button
-      onClick={() => setIsOpen(!isOpen)}
+    <button 
+      onClick={() => setIsOpen(!isOpen)} 
       className="absolute top-4 right-4 z-50 text-white p-2"
-    >
+      >
       {isOpen ? <X size={28} /> : <Menu size={30} />}
     </button>
-    <div
-      className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}
-    >
-      <ul className="p-6 space-y-4">
-        <li><a href="/">홈</a></li>
-        <li><a href="/Eating">혼밥</a></li>
-        <li><a href="/Playing">혼놀</a></li>
-        <li><a href="/Sleeping">혼숙</a></li>
-      </ul>
-    </div>
+
+      <div
+            className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
+              isOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <ul className="p-6 space-y-4">
+              <li className="flex justify-between items-center border-b border-gray-300 pb-2">
+                <Link to="/" onClick={() => setIsOpen(false)}>홈</Link>
+                {isLoggedIn ? (
+                  <button
+                    onClick={handleLogoutClick}
+                    className="bg-red-500 text-white px-2 py-1 rounded-md text-sm shadow"
+                  >
+                    로그아웃
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleLoginClick}
+                    className="bg-green-500 text-white px-2 py-1 rounded-md text-sm shadow"
+                  >
+                    로그인
+                  </button>
+                )}
+              </li>
+              <li><Link to="/eating" onClick={() => setIsOpen(false)}>혼밥</Link></li>
+              <li><Link to="/playing" onClick={() => setIsOpen(false)}>혼놀</Link></li>
+              <li><Link to="/sleeping" onClick={() => setIsOpen(false)}>혼숙</Link></li>
+            </ul>
+          </div>
     {isOpen && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsOpen(false)} />}
   </>
 );
@@ -97,21 +116,12 @@ const Main = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // 초기값 true
   const [likes, setLikes] = useState([]);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
-
-  // 로그인 버튼 클릭 시 로딩
-  const handleLoginClick = () => {
-    setIsLoading(true); // 로딩 시작
-    setTimeout(() => {
-      navigate('/Signup');
-      setIsLoggedIn(true);
-      setIsLoading(false); // 로딩 종료
-    }, 800);
-  };
 
   // 마이페이지 데이터 fetch
   useEffect(() => {
-    fetch("http://localhost:8000/api/mypage", { credentials: "include" })
+    fetch("http://localhost:8000/mypage", { credentials: "include" })
       .then(res => {
         if (!res.ok) throw new Error("로그인 필요");
         return res.json();
@@ -126,6 +136,34 @@ const Main = () => {
         navigate("/Signup");
       });
   }, [navigate]);
+
+  // 로그인 상태 확인
+      useEffect(() => {
+        const checkLogin = async () => {
+          try {
+            const res = await fetch('http://localhost:8000/mypage', { credentials: 'include' });
+            setIsLoggedIn(res.ok);
+          } catch (err) {
+            setIsLoggedIn(false);
+          }
+        };
+        checkLogin();
+      }, []);
+
+  const handleLoginClick = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      navigate('/Signup');
+      setIsLoggedIn(true);
+      setIsLoading(false);
+    }, 800);
+  };
+
+  // 로그아웃 버튼 클릭
+  const handleLogoutClick = () => {
+    setIsOpen(false);
+    setShowLogoutModal(true);
+  };
 
  
   // 로딩 화면
@@ -151,17 +189,25 @@ const Main = () => {
       {/* 배경 이미지 */}
       <div className="w-full h-[85vh] relative">
         <img src="/assets/마이페이지.jpg" alt="마이페이지 배경" className="absolute top-0 left-0 w-full h-full object-cover" />
-        <HamburgerMenu isOpen={isOpen} setIsOpen={setIsOpen} />
+        {/* 햄버거 메뉴 */}
+      <HamburgerMenu
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        handleLoginClick={handleLoginClick}
+        handleLogoutClick={handleLogoutClick}
+        isLoggedIn={isLoggedIn}
+      />
+
+        {showLogoutModal && (
+          <LogoutModalPage 
+          setShowModal={setShowLogoutModal} 
+          setIsLoggedIn={setIsLoggedIn} 
+        />
+      )}
         <div className="absolute top-[15%] sm:top-[12%] left-5 text-white font-bold text-5xl sm:text-7xl drop-shadow-md z-10 animate-slide-up">
           {userName ? `${userName}님 환영합니다` : '마이페이지'}
         </div>
       </div>
-
-
-      {/* 로그인 버튼 */}
-      <button onClick={handleLoginClick} className="absolute top-5 left-5 bg-glass text-black px-3 py-1 rounded-md shadow-md z-50 flex items-center"> 
-        <User size={20} className="text-white" />
-      </button>
 
       {/* 큰 div 박스 */}
       <div className="relative z-20 -mt-10 bg-white rounded-t-3xl shadow-2xl p-6 space-y-8 animate-slide-up">
@@ -176,7 +222,7 @@ const Main = () => {
         <p className="text-black font-semibold text-lg text-left">
           멋쟁이사자처럼 13기 해커톤 프로젝트 <br />
           😎우리조잘했조 - 이지훈 김정현 송원영<br />
-          프로젝트 기간: 2025.00.00 ~ 2025.08.26
+          프로젝트 기간: 2025.08.05 ~ 2025.08.26
         </p>
       </div>
     </div>
