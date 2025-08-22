@@ -37,13 +37,13 @@ const MyPageButtonWithPopup = () => {
         ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
       >
         <button
-          className="px-3 py-2 w-40 text-center hover:bg-gray-100 border-b border-gray-200 w-full text-left"
+          className="py-2 w-40 text-center hover:bg-gray-100 border-b border-gray-200 w-full"
           onClick={() => {
             setIsOpen(false);
             navigate('/Roadmap');
           }}
         >
-          로드맵 페이지 이동
+          로드맵 페이지
         </button>
         <button
           className="px-3 py-2 w-40 text-center hover:bg-gray-100"
@@ -52,7 +52,7 @@ const MyPageButtonWithPopup = () => {
             navigate('/mypage');
           }}
         >
-          마이페이지 이동
+          마이페이지
         </button>
       </div>
     </div>
