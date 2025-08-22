@@ -1,155 +1,162 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { MapPin, ChartBarStacked, Shuffle, Menu, X } from 'lucide-react';
+import FilterDropdown from './FilterDropdown_Load.jsx';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X} from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Mousewheel } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 import LogoutModalPage from './Logout.jsx';
+import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
-// 햄버거 메뉴
+// ---------------- 햄버거 메뉴 ----------------
 const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
     <button 
       onClick={() => setIsOpen(!isOpen)} 
-      className="absolute top-4 right-4 z-50 text-white p-2"
-      >
+      className="absolute top-4 right-4 z-50 text-gray-400 p-2"
+    >
       {isOpen ? <X size={28} /> : <Menu size={30} />}
     </button>
 
-      <div
-            className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
-              isOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}
-          >
-            <ul className="p-6 space-y-4">
-              <li className="flex justify-between items-center border-b border-gray-300 pb-2">
-                <Link to="/" onClick={() => setIsOpen(false)}>홈</Link>
-                {isLoggedIn ? (
-                  <button
-                    onClick={handleLogoutClick}
-                    className="bg-red-500 text-white px-2 py-1 rounded-md text-sm shadow"
-                  >
-                    로그아웃
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleLoginClick}
-                    className="bg-green-500 text-white px-2 py-1 rounded-md text-sm shadow"
-                  >
-                    로그인
-                  </button>
-                )}
-              </li>
-              <li><Link to="/eating" onClick={() => setIsOpen(false)}>혼밥</Link></li>
-              <li><Link to="/playing" onClick={() => setIsOpen(false)}>혼놀</Link></li>
-              <li><Link to="/sleeping" onClick={() => setIsOpen(false)}>혼숙</Link></li>
-            </ul>
-          </div>
+    <div
+      className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}
+    >
+      <ul className="p-6 space-y-4">
+        <li className="flex justify-between items-center border-b border-gray-300 pb-2">
+          <Link to="/" onClick={() => setIsOpen(false)}>홈</Link>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogoutClick}
+              className="bg-red-500 text-white px-2 py-1 rounded-md text-sm shadow"
+            >
+              로그아웃
+            </button>
+          ) : (
+            <button
+              onClick={handleLoginClick}
+              className="bg-green-500 text-white px-2 py-1 rounded-md text-sm shadow"
+            >
+              로그인
+            </button>
+          )}
+        </li>
+        <li><Link to="/eating" onClick={() => setIsOpen(false)}>혼밥</Link></li>
+        <li><Link to="/playing" onClick={() => setIsOpen(false)}>혼놀</Link></li>
+        <li><Link to="/sleeping" onClick={() => setIsOpen(false)}>혼숙</Link></li>
+      </ul>
+    </div>
+
     {isOpen && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsOpen(false)} />}
   </>
 );
 
-
-// SwiperSection 컴포넌트
-const SwiperSection = ({ likes, keywordFilter, title }) => {
+// ---------------- Loadmap 페이지 ----------------
+export default function Loadmap() {
   const navigate = useNavigate();
-  const filteredLikes = likes.filter(item => item.keyword.includes(keywordFilter));
 
-  return (
-    <div className="w-full space-y-4 min-h-[250px]"> {/* ← 높이 고정 */}
-      <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-700">{title}</h2>
-
-      {filteredLikes.length === 0 ? (
-        <div className="flex items-center justify-center h-[200px] rounded-xl bg-gray-100 text-gray-500 shadow-inner">
-          아직 좋아요한 가게가 없습니다 😢
-        </div>
-      ) : (
-        <Swiper
-          slidesPerView={1.5}
-          spaceBetween={12}
-          breakpoints={{
-            640: { slidesPerView: 3 },
-            1024: { slidesPerView: 3 },
-          }}
-          pagination={{ clickable: true }}
-          mousewheel
-          modules={[Pagination, Mousewheel]}
-          className="w-full"
-        >
-          {filteredLikes.map(item => (
-            <SwiperSlide key={item.store_id}>
-              <div
-                className="relative w-full h-[200px] rounded-xl shadow-md overflow-hidden cursor-pointer"
-                onClick={() => {
-                  if (item.keyword.includes("맛집")) navigate(`/store/eating/${item.store_id}`);
-                  else if (item.keyword.includes("놀곳")) navigate(`/store/playing/${item.store_id}`);
-                  else if (item.keyword.includes("숙소")) navigate(`/store/sleeping/${item.store_id}`);
-                }}          
-              >
-                <img
-                  src={item.image || "/assets/default.jpg"}
-                  alt={item.item_name || "default image"}
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.src = "/assets/default.jpg"; }}
-                />
-
-
-                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-3">
-                  <p className="text-white font-bold text-lg sm:text-xl">{item.item_name}</p>
-                  <p className="text-gray-300 text-sm sm:text-base">📍 {item.address}</p>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      )}
-    </div>
-  );
-};
-
-
-const Main = () => {
+  // ---------------- 상태 ----------------
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState('전체 지역');
+  const [switchCategories, setSwitchCategories] = useState({ 혼밥: false, 혼놀: false, 혼숙: false });
+  const [switchCheckboxes, setSwitchCheckboxes] = useState({
+    혼밥: { 혼밥: false, 혼놀: false, 혼숙: false },
+    혼놀: { 혼밥: false, 혼놀: false, 혼숙: false },
+    혼숙: { 혼밥: false, 혼놀: false, 혼숙: false }
+  });
+  const [selectedDays, setSelectedDays] = useState(1);
+  const [roadmap, setRoadmap] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [userName, setUserName] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // 초기값 true
-  const [likes, setLikes] = useState([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const navigate = useNavigate();
 
-  // 마이페이지 데이터 fetch
-  useEffect(() => {
-    fetch("http://localhost:8000/mypage", { credentials: "include" })
-      .then(res => {
-        if (!res.ok) throw new Error("로그인 필요");
-        return res.json();
-      })
-      .then(data => {
-        setUserName(data.UserName);
-        setLikes(data.likes || []);
-        setIsLoading(false); // 데이터 로딩 완료
-      })
-      .catch(() => {
-        setIsLoading(false); // 실패해도 로딩 종료
-        navigate("/Signup");
+  const regionOptions = [
+    { value: '전체 지역', label: '전체 지역' },
+    { value: '은평구', label: '서울 특별시 은평구' },
+    { value: '덕양구', label: '경기도 덕양구' },
+    { value: '일산동구', label: '경기도 일산동구' },
+    { value: '일산서구', label: '경기도 일산서구' },
+  ];
+
+  // ---------------- 스위치 핸들러 ----------------
+  const handleSwitchChange = (category, checked) => {
+    setSwitchCategories(prev => ({ ...prev, [category]: checked }));
+  };
+
+  const handleSwitchCheckboxChange = (switchCategory, checkboxCategory, checked) => {
+    setSwitchCheckboxes(prev => ({
+      ...prev,
+      [switchCategory]: { ...prev[switchCategory], [checkboxCategory]: checked }
+    }));
+  };
+
+  // ---------------- 로드맵 API 호출 ----------------
+  const handleRoadmapClick = async () => {
+    try {
+      const kinds = Object.entries(switchCategories)
+        .filter(([_, checked]) => checked)
+        .map(([category]) => category);
+
+      if (kinds.length === 0) {
+        alert("카테고리를 최소 하나 선택해주세요.");
+        return;
+      }
+
+      const keywords = {};
+      kinds.forEach(kind => {
+        const checkedItems = Object.entries(switchCheckboxes[kind])
+          .filter(([_, checked]) => checked)
+          .map(([name]) => name);
+        keywords[kind] = checkedItems;
       });
-  }, [navigate]);
 
-  // 로그인 상태 확인
-      useEffect(() => {
-        const checkLogin = async () => {
-          try {
-            const res = await fetch('http://localhost:8000/mypage', { credentials: 'include' });
-            setIsLoggedIn(res.ok);
-          } catch (err) {
-            setIsLoggedIn(false);
-          }
-        };
-        checkLogin();
-      }, []);
+      const payload = {
+        location: selectedRegion,
+        nights: selectedDays - 1,
+        kinds: kinds,
+        keywords: keywords
+      };
 
+      console.log("[요청 payload]", payload);
+
+      setIsLoading(true);
+      const res = await fetch("http://localhost:8000/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include"
+      });      
+
+      console.log("[응답 status]", res.status);
+      const data = await res.json();
+      console.log("[응답 body]", data);
+
+      if (data.roadmap && Array.isArray(data.roadmap)) {
+        setRoadmap(data.roadmap);
+      } else {
+        setRoadmap([]);
+        alert("AI가 적합한 로드맵을 생성하지 못했습니다.");
+      }
+    } catch (err) {
+      console.error("AI 로드맵 호출 실패:", err);
+      alert("AI 로드맵 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ---------------- 로그인 체크 ----------------
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/mypage', { method: 'GET', credentials: 'include' });
+        setIsLoggedIn(res.ok);
+      } catch (err) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkLogin();
+  }, []);
+
+  // ---------------- 버튼 핸들러 ----------------
   const handleLoginClick = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -159,37 +166,167 @@ const Main = () => {
     }, 800);
   };
 
-  // 로그아웃 버튼 클릭
   const handleLogoutClick = () => {
     setIsOpen(false);
     setShowLogoutModal(true);
   };
 
- 
-  // 로딩 화면
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-        <div className="flex flex-col items-center">
-          <svg className="animate-spin h-10 w-10 text-green-500 mb-4" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
-          </svg>
-          <p className="text-gray-600 text-lg font-medium">로딩 중입니다...</p>
+  // ---------------- 렌더링 ----------------
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6">
+      <div className="w-full max-w-3xl mx-auto">
+        <div className="bg-white shadow-lg rounded-2xl p-8 min-h-[800px] animate-slide-up">
+          <div className="text-center space-y-2 mb-6">
+            <h1 className="text-2xl font-bold text-green-600">안녕하세요, 로디에요 :) 🌿</h1>
+            <p className="text-sm text-gray-600">원하는 조건을 선택하고 나만의 로드맵을 만들어보세요!</p>
+          </div>
+
+          {/* 지역 필터 */}
+          <div className="mb-6">
+            <FilterDropdown
+              label={<span className="flex items-center gap-2"><MapPin className="w-4 h-4" /> 지역</span>}
+              options={regionOptions}
+              value={selectedRegion}
+              onChange={setSelectedRegion}
+              placeholder="지역을 선택하세요"
+            />
+          </div>
+
+          {/* 스위치 카테고리 */}
+          <div className="mb-6">
+            <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <ChartBarStacked className="w-4 h-4" /> 카테고리
+            </h2>
+            <div className="space-y-6 mt-3">
+              {Object.entries(switchCategories).map(([category, checked]) => (
+                <div key={category} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">{category}</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => handleSwitchChange(category, e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:h-5 after:w-5 after:rounded-full after:transition-all peer-checked:after:translate-x-full"></div>
+                    </label>
+                  </div>
+                  {checked && (
+                    <div className="ml-4 pl-4 border-l-2 border-gray-200 mt-2">
+                      <div className="grid grid-cols-3 gap-2">
+                        {(category === "혼밥" ? ["한식","일식","양식","고기","디저트","기타"] :
+                          category === "혼놀" ? ["카페","공원","도보","박물관","기타"] :
+                          ["캠핑","야영","펜션","호텔","모텔","기타"]
+                        ).map((checkboxCategory, idx) => (
+                          <div key={`${category}-${checkboxCategory}`} className="flex items-center gap-1">
+                            <input
+                              type="checkbox"
+                              id={`switch-checkbox-${category}-${checkboxCategory}`}
+                              checked={switchCheckboxes[category][checkboxCategory]}
+                              onChange={(e) => handleSwitchCheckboxChange(category, checkboxCategory, e.target.checked)}
+                              className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+                            />
+                            <label htmlFor={`switch-checkbox-${category}-${checkboxCategory}`} className="text-sm text-gray-700 cursor-pointer">
+                              {checkboxCategory}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+          {/* 슬라이더 */}
+          <div className="mb-6 mt-8">
+            <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2">
+              일수를 선택해주세요!
+            </h2>
+            <div className="relative w-full h-3 mt-2 bg-green-100 rounded-full">
+              <div 
+                className="absolute left-0 top-0 h-3 bg-green-300 rounded-full transition-all duration-200"
+                style={{ width: `${((selectedDays-1)/(7-1))*100}%` }}
+              />
+              <div
+                className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-green-500 rounded-full shadow-lg cursor-pointer"
+                style={{ left: `${((selectedDays-1)/(7-1))*100}%` }}
+                onMouseDown={(e) => {
+                  const slider = e.currentTarget.parentElement;
+                  const onMouseMove = (ev) => {
+                    const rect = slider.getBoundingClientRect();
+                    let percent = (ev.clientX - rect.left) / rect.width;
+                    percent = Math.max(0, Math.min(1, percent));
+                    setSelectedDays(Math.round(percent * (7-1) + 1));
+                  };
+                  const onMouseUp = () => {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                  };
+                  window.addEventListener('mousemove', onMouseMove);
+                  window.addEventListener('mouseup', onMouseUp);
+                }}
+              />
+            </div>
+            <div className="text-sm text-gray-700 text-right mt-1">{selectedDays}일</div>
+          </div>
+
+          {/* 버튼 */}
+          <div className="pt-6 flex gap-3">
+            <button 
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg transition-transform transform hover:scale-105"
+              onClick={handleRoadmapClick}
+              disabled={isLoading}
+            >
+              {isLoading ? "생성중..." : "로드맵 만들어보기!!"}
+            </button>
+            <button 
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg transition-colors flex items-center gap-1"
+              onClick={() => setSelectedRegion(regionOptions[Math.floor(Math.random() * regionOptions.length)].value)}
+            >
+              <Shuffle className="w-4 h-4" /> 랜덤
+            </button>
+          </div>
+
+          {/* ---------------- 로드맵 출력 ---------------- */}
+          {roadmap && roadmap.length > 0 ? (
+            roadmap.map((dayPlan, i) => (
+              <div key={dayPlan.day || i} className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-bold">Day {dayPlan.day || i+1}</h3>
+                {dayPlan.ai_summary && (
+                  <p className="mt-2 mb-2 text-sm text-green-600 font-medium">
+                    🤖 AI 간단 요약: {dayPlan.ai_summary}
+                  </p>
+                )}
+                <ul className="mt-2 space-y-1 text-sm text-gray-700">
+                  {dayPlan.plan && dayPlan.plan.map((item, idx) => (
+                    <li key={idx} className="mb-2">
+                      • 가게 이름: {item.storename} <br />
+                      • 지역: {item.address} <br />
+                      {item.rating && <>• 평점: {item.rating} <br /></>}
+                      {item.hon0_index_final && <>• 혼0지수: {item.hon0_index_final} <br /></>}
+                      {item.summary_bullets && <>• 방문객 후기: {item.summary_bullets} <br /></>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          ) : (
+            <p className="mt-4 text-gray-400 text-sm">로드맵이 아직 없습니다.</p>
+          )}
+        </div> 
+
+        {/* 하단 저작권 */}
+        <div className="mt-5 text-left text-xs text-gray-400">
+          멋쟁이사자처럼 13기 해커톤 프로젝트 <br />
+          😎 우리조잘했조 - 이지훈 김정현 송원영 <br />
+          프로젝트 기간: 2025.08.06 ~ 2025.08.26
         </div>
       </div>
-    );
-  }
 
-
-  // Mypage 페이지 JSX
-  return (
-    <div className="relative w-full min-h-screen bg-gray-50 overflow-x-hidden">
-      <MyPageButtonWithPopup />
-      {/* 배경 이미지 */}
-      <div className="w-full h-[85vh] relative">
-        <img src="/assets/마이페이지.jpg" alt="마이페이지 배경" className="absolute top-0 left-0 w-full h-full object-cover" />
-        {/* 햄버거 메뉴 */}
+      {/* 햄버거 메뉴, 모달, 마이페이지 버튼 */}
       <HamburgerMenu
         isOpen={isOpen}
         setIsOpen={setIsOpen}
@@ -198,35 +335,14 @@ const Main = () => {
         isLoggedIn={isLoggedIn}
       />
 
-        {showLogoutModal && (
-          <LogoutModalPage 
+      {showLogoutModal && (
+        <LogoutModalPage 
           setShowModal={setShowLogoutModal} 
           setIsLoggedIn={setIsLoggedIn} 
         />
       )}
-        <div className="absolute top-[15%] sm:top-[12%] left-5 text-white font-bold text-5xl sm:text-7xl drop-shadow-md z-10 animate-slide-up">
-          {userName ? `${userName}님 환영합니다` : '마이페이지'}
-        </div>
-      </div>
-
-      {/* 큰 div 박스 */}
-      <div className="relative z-20 -mt-10 bg-white rounded-t-3xl shadow-2xl p-6 space-y-8 animate-slide-up">
-        <SwiperSection likes={likes} keywordFilter="맛집" title="🍚혼밥 좋아요 목록" />
-        <SwiperSection likes={likes} keywordFilter="놀곳" title="🎮혼놀 좋아요 목록" />
-        <SwiperSection likes={likes} keywordFilter="숙소" title="🛏️혼숙 좋아요 목록" />
-      </div>
-
-      {/* 하단 문구 */}
-      <div className="mt-10 p-4 bg-glass opacity-20 w-full pl-6">
-        <div className="w-full h-px bg-black mb-2" />
-        <p className="text-black font-semibold text-lg text-left">
-          멋쟁이사자처럼 13기 해커톤 프로젝트 <br />
-          😎우리조잘했조 - 이지훈 김정현 송원영<br />
-          프로젝트 기간: 2025.08.05 ~ 2025.08.26
-        </p>
-      </div>
+      
+      <MyPageButtonWithPopup />
     </div>
   );
-};
-
-export default Main;
+}
