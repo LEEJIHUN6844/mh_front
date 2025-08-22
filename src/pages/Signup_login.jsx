@@ -1,36 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import LogoutModalPage from './Logout.jsx';
 import { useNavigate } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
+import LogoutModalPage from './Logout.jsx';
 
+// 햄버거 메뉴 컴포넌트
+const HamburgerMenu = ({ isOpen, setIsOpen, isLoggedIn, handleLoginClick, handleLogoutClick }) => (
+  <>
+    <button
+      onClick={() => setIsOpen(!isOpen)}
+      className="absolute top-4 right-4 z-50 text-gray-700 p-2"
+    >
+      {isOpen ? <X size={28} /> : <Menu size={30} />}
+    </button>
+
+    <div className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
+      isOpen ? 'translate-x-0' : 'translate-x-full'
+    }`}>
+      <ul className="p-6 space-y-4">
+        <li className="flex justify-between items-center border-b border-gray-300 pb-2">
+          <span>홈</span>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogoutClick}
+              className="bg-red-500 text-white px-2 py-1 rounded-md text-sm shadow"
+            >
+              로그아웃
+            </button>
+          ) : (
+            <button
+              onClick={handleLoginClick}
+              className="bg-green-500 text-white px-2 py-1 rounded-md text-sm shadow"
+            >
+              로그인
+            </button>
+          )}
+        </li>
+        <li><span>혼밥</span></li>
+        <li><span>혼놀</span></li>
+        <li><span>혼숙</span></li>
+      </ul>
+    </div>
+
+    {isOpen && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsOpen(false)} />}
+  </>
+);
+
+// 회원가입/로그인 페이지
 const SignupLogin = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // 햄버거 메뉴
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loginData, setLoginData] = useState({ UserID: '', UserPW: '' });
   const [signupData, setSignupData] = useState({ UserName: '', UserID: '', UserPW: '' });
   const navigate = useNavigate();
 
-  // 서버 연결 테스트
+  // 쿠키 체크로 로그인 상태 확인
   useEffect(() => {
-    fetch('http://localhost:8000/')
-      .then(res => res.json())
-      .then(data => console.log(data.message))
-      .catch(() => console.log('서버 연결 실패'));
+    const checkLogin = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/mypage', { credentials: 'include' });
+        setIsLoggedIn(res.ok);
+      } catch (err) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkLogin();
   }, []);
 
   // 로그인 요청
   const handleLogin = async () => {
-    const response = await fetch("http://localhost:8000/api/login", {
+    const response = await fetch("http://localhost:8000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // 쿠키 포함
-      body: JSON.stringify({
-        UserID: loginData.UserID,
-        UserPW: loginData.UserPW
-      }),
+      credentials: "include",
+      body: JSON.stringify(loginData),
     });
 
     const data = await response.json();
     if (response.ok) {
       alert(data.message);
+      setIsLoggedIn(true);
       navigate("/");
     } else {
       alert(data.detail);
@@ -40,34 +90,53 @@ const SignupLogin = () => {
   // 회원가입 요청
   const handleSignup = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/signup', {
+      const response = await fetch('http://localhost:8000/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(signupData),
       });
-
       if (!response.ok) {
         const errData = await response.json();
         console.error('Signup failed:', errData);
         return;
       }
-
-      const data = await response.json();
       alert('회원가입 성공! 로그인 화면으로 이동합니다.');
-      console.log('Signup Success:', data);
-      setIsLogin(true); // 회원가입 후 로그인 화면으로 전환
+      setIsLogin(true);
     } catch (error) {
       console.error('Signup Error:', error.message);
     }
   };
 
+  // 햄버거 메뉴 로그인 클릭
+  const handleHamburgerLogin = () => {
+    setIsLogin(true);
+    setIsOpen(false);
+  };
+
+  // 햄버거 메뉴 로그아웃 클릭
+  const handleHamburgerLogout = () => {
+    setShowLogoutModal(true);
+    setIsOpen(false);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 relative">
+      {/* 햄버거 메뉴 */}
+      <HamburgerMenu
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        isLoggedIn={isLoggedIn}
+        handleLoginClick={handleHamburgerLogin}
+        handleLogoutClick={handleHamburgerLogout}
+      />
+
+      {/* 로그아웃 모달 - 화면 최상단에서 전체 렌더링 */}
+      {showLogoutModal && <LogoutModalPage setShowModal={setShowLogoutModal} />}
+
+      {/* 로그인/회원가입 UI */}
       <div className="relative w-full max-w-[700px] h-[500px] bg-white rounded-lg shadow-2xl overflow-hidden">
-
-        {/* 로그인/회원가입 슬라이드 */}
         <div className={`absolute top-0 left-0 w-[200%] h-full flex transition-transform duration-1000 ease-in-out ${isLogin ? 'translate-x-0' : '-translate-x-1/2'}`}>
-
+          
           {/* 로그인 */}
           <div className="w-1/2 p-12 flex flex-col justify-center">
             <h2 className="text-2xl font-bold text-green-600 mb-6">LOGIN</h2>
@@ -91,7 +160,6 @@ const SignupLogin = () => {
             >
               Log in
             </button>
-            <LogoutModalPage />
           </div>
 
           {/* 회원가입 */}
