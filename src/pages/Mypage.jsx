@@ -290,33 +290,70 @@ export default function Loadmap() {
             </button>
           </div>
 
-          {/* ---------------- 로드맵 출력 ---------------- */}
-          {roadmap && roadmap.length > 0 ? (
-            roadmap.map((dayPlan, i) => (
-              <div key={dayPlan.day || i} className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-bold">Day {dayPlan.day || i+1}</h3>
-                {dayPlan.ai_summary && (
-                  <p className="mt-2 mb-2 text-sm text-green-600 font-medium">
-                    🤖 AI 간단 요약: {dayPlan.ai_summary}
-                  </p>
-                )}
-                <ul className="mt-2 space-y-1 text-sm text-gray-700">
-                  {dayPlan.plan && dayPlan.plan.map((item, idx) => (
-                    <li key={idx} className="mb-2">
-                      • 가게 이름: {item.storename} <br />
-                      • 지역: {item.address} <br />
-                      {item.rating && <>• 평점: {item.rating} <br /></>}
-                      {item.hon0_index_final && <>• 혼0지수: {item.hon0_index_final} <br /></>}
-                      {item.summary_bullets && <>• 방문객 후기: {item.summary_bullets} <br /></>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          ) : (
-            <p className="mt-4 text-gray-400 text-sm">로드맵이 아직 없습니다.</p>
+         {/* ---------------- 로드맵 출력 ---------------- */}
+        {roadmap && roadmap.length > 0 ? (
+  roadmap.map((dayPlan, i) => (
+    <div
+      key={dayPlan.day || i}
+      className="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200"
+    >
+      <h3 className="font-bold text-lg mb-3">Day {dayPlan.day || i + 1}</h3>
+
+      {dayPlan.ai_summary && (
+        <div className="bg-green-50 text-green-700 text-sm font-medium p-3 rounded-md mb-4">
+          🤖 AI 간단 요약: {dayPlan.ai_summary}
+        </div>
+      )}
+
+      {dayPlan.plan && dayPlan.plan.length > 0 ? (
+        <div className="space-y-4">
+          {dayPlan.plan.map((item, idx) => (
+            <dl
+              key={idx}
+              className="bg-white p-3 rounded-md border border-gray-200"
+            >
+              <dt className="font-semibold text-gray-800">• 가게 이름:{item.storename}</dt>
+            
+              <dt className="font-semibold text-gray-800 mt-1">• 주소:{item.address}</dt>
+
+              {item.rating && (
+                <>
+                  <dt className="font-semibold text-gray-800 mt-1">• 평점:{item.rating}</dt>
+                </>
+              )}
+
+              {item.hon0_index_final && (
+                <>
+                <dt className="font-semibold text-gray-800 mt-1">• 혼0지수:{item.hon0_index_final}점</dt>
+                <dd className="ml-2 w-full">
+                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-3 bg-green-500"
+                    style={{ width: `${item.hon0_index_final}%` }}
+                  ></div>
+                </div>      
+              </dd>
+            </>
           )}
-        </div> 
+
+              {item.summary_bullets && (
+                <>
+                  <dt className="font-semibold text-gray-800 mt-1">• 방문객 후기: ⬇️</dt>
+                  <dd className="ml-2 text-gray-700">{item.summary_bullets}</dd>
+                </>
+              )}
+            </dl>
+          ))}
+        </div>
+      ): (
+        <p className="text-gray-500 text-sm">해당 날짜에 대한 로드맵이 없습니다.</p>
+      )}
+    </div>
+  ))
+) : (
+  <p className="mt-4 text-gray-400 text-sm text-center">로드맵이 아직 없습니다.</p>
+)}
+
 
         {/* 하단 저작권 */}
         <div className="mt-5 text-left text-xs text-gray-400">
@@ -344,5 +381,6 @@ export default function Loadmap() {
       
       <MyPageButtonWithPopup />
     </div>
+  </div>
   );
 }
