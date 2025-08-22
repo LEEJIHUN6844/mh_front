@@ -53,7 +53,7 @@ const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick,
 export default function Loadmap() {
   const navigate = useNavigate();
 
-  // 상태
+  // ---------------- 상태 ----------------
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('전체 지역');
   const [switchCategories, setSwitchCategories] = useState({ 혼밥: false, 혼놀: false, 혼숙: false });
@@ -63,16 +63,17 @@ export default function Loadmap() {
     혼숙: { 혼밥: false, 혼놀: false, 혼숙: false }
   });
   const [selectedDays, setSelectedDays] = useState(1);
+  const [roadmap, setRoadmap] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const regionOptions = [
     { value: '전체 지역', label: '전체 지역' },
-    { value: '서울특별시 은평구', label: '서울특별시 은평구' },
-    { value: '덕양구', label: '덕양구' },
-    { value: '일산동구', label: '일산동구' },
-    { value: '일산서구', label: '일산서구' },
+    { value: '은평구', label: '서울 특별시 은평구' },
+    { value: '덕양구', label: '경기도 덕양구' },
+    { value: '일산동구', label: '경기도 일산동구' },
+    { value: '일산서구', label: '경기도 일산서구' },
   ];
 
   // ---------------- 스위치 핸들러 ----------------
@@ -87,14 +88,66 @@ export default function Loadmap() {
     }));
   };
 
-  // ---------------- 로그인 상태 체크 ----------------
+  // ---------------- 로드맵 API 호출 ----------------
+  const handleRoadmapClick = async () => {
+    try {
+      const kinds = Object.entries(switchCategories)
+        .filter(([_, checked]) => checked)
+        .map(([category]) => category);
+
+      if (kinds.length === 0) {
+        alert("카테고리를 최소 하나 선택해주세요.");
+        return;
+      }
+
+      const keywords = {};
+      kinds.forEach(kind => {
+        const checkedItems = Object.entries(switchCheckboxes[kind])
+          .filter(([_, checked]) => checked)
+          .map(([name]) => name);
+        keywords[kind] = checkedItems;
+      });
+
+      const payload = {
+        location: selectedRegion,
+        nights: selectedDays - 1,
+        kinds: kinds,
+        keywords: keywords
+      };
+
+      console.log("[요청 payload]", payload);
+
+      setIsLoading(true);
+      const res = await fetch("http://localhost:8000/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include"
+      });      
+
+      console.log("[응답 status]", res.status);
+      const data = await res.json();
+      console.log("[응답 body]", data);
+
+      if (data.roadmap && Array.isArray(data.roadmap)) {
+        setRoadmap(data.roadmap);
+      } else {
+        setRoadmap([]);
+        alert("AI가 적합한 로드맵을 생성하지 못했습니다.");
+      }
+    } catch (err) {
+      console.error("AI 로드맵 호출 실패:", err);
+      alert("AI 로드맵 생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ---------------- 로그인 체크 ----------------
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch('http://localhost:8000/mypage', {
-          method: 'GET',
-          credentials: 'include', // 쿠키 전송
-        });
+        const res = await fetch('http://localhost:8000/mypage', { method: 'GET', credentials: 'include' });
         setIsLoggedIn(res.ok);
       } catch (err) {
         setIsLoggedIn(false);
@@ -118,6 +171,7 @@ export default function Loadmap() {
     setShowLogoutModal(true);
   };
 
+  // ---------------- 렌더링 ----------------
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6">
       <div className="w-full max-w-3xl mx-auto">
@@ -159,10 +213,13 @@ export default function Loadmap() {
                     </label>
                   </div>
                   {checked && (
-                    <div className="ml-4 pl-4 border-l-2 border-gray-200">
-                      <div className="flex items-center justify-between">
-                        {['혼밥', '혼놀', '혼숙'].map(checkboxCategory => (
-                          <div key={`${category}-${checkboxCategory}`} className="flex items-center gap-2">
+                    <div className="ml-4 pl-4 border-l-2 border-gray-200 mt-2">
+                      <div className="grid grid-cols-3 gap-2">
+                        {(category === "혼밥" ? ["한식","일식","양식","고기","디저트"] :
+                          category === "혼놀" ? ["카페","공원","도보","박물관"] :
+                          ["캠핑","야영","펜션","호텔","모텔"]
+                        ).map((checkboxCategory, idx) => (
+                          <div key={`${category}-${checkboxCategory}`} className="flex items-center gap-1">
                             <input
                               type="checkbox"
                               id={`switch-checkbox-${category}-${checkboxCategory}`}
@@ -172,16 +229,16 @@ export default function Loadmap() {
                             />
                             <label htmlFor={`switch-checkbox-${category}-${checkboxCategory}`} className="text-sm text-gray-700 cursor-pointer">
                               {checkboxCategory}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
+                          </label>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
+        </div>
 
           {/* 슬라이더 */}
           <div className="mb-6 mt-8">
@@ -216,31 +273,14 @@ export default function Loadmap() {
             <div className="text-sm text-gray-700 text-right mt-1">{selectedDays}일</div>
           </div>
 
-          {/* 선택 미리보기 */}
-          <div className="mt-4 p-3 bg-green-50 border border-green-100 rounded-lg">
-            <h3 className="text-md font-semibold text-green-700 mb-2">선택 미리보기</h3>
-            <p className="text-xs text-gray-500">지역: {selectedRegion}</p>
-            <p className="text-xs text-gray-500">
-              스위치: {Object.entries(switchCategories).filter(([_, checked]) => checked).map(([category]) => category).join(', ') || '선택 없음'}
-            </p>
-            <p className="text-xs text-gray-500">
-              스위치별 체크박스: {Object.entries(switchCheckboxes)
-                .map(([switchCategory, checkboxes]) => {
-                  const checkedItems = Object.entries(checkboxes).filter(([_, checked]) => checked).map(([name]) => name);
-                  return `${switchCategory}: ${checkedItems.length > 0 ? checkedItems.join(', ') : '선택 없음'}`;
-                })
-                .join(' | ')}
-            </p>
-            <p className="text-xs text-gray-500">선택 일수: {selectedDays}일</p>
-          </div>
-
           {/* 버튼 */}
           <div className="pt-6 flex gap-3">
             <button 
               className="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg transition-transform transform hover:scale-105"
-              onClick={() => console.log('선택:', { selectedRegion, switchCategories, switchCheckboxes, selectedDays })}
+              onClick={handleRoadmapClick}
+              disabled={isLoading}
             >
-              로드맵 만들어보기!!
+              {isLoading ? "생성중..." : "로드맵 만들어보기!!"}
             </button>
             <button 
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg transition-colors flex items-center gap-1"
@@ -249,7 +289,71 @@ export default function Loadmap() {
               <Shuffle className="w-4 h-4" /> 랜덤
             </button>
           </div>
+
+         {/* ---------------- 로드맵 출력 ---------------- */}
+        {roadmap && roadmap.length > 0 ? (
+  roadmap.map((dayPlan, i) => (
+    <div
+      key={dayPlan.day || i}
+      className="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200"
+    >
+      <h3 className="font-bold text-lg mb-3">Day {dayPlan.day || i + 1}</h3>
+
+      {dayPlan.ai_summary && (
+        <div className="bg-green-50 text-green-700 text-sm font-medium p-3 rounded-md mb-4">
+          🤖 AI 간단 요약: {dayPlan.ai_summary}
         </div>
+      )}
+
+      {dayPlan.plan && dayPlan.plan.length > 0 ? (
+        <div className="space-y-4">
+          {dayPlan.plan.map((item, idx) => (
+            <dl
+              key={idx}
+              className="bg-white p-3 rounded-md border border-gray-200"
+            >
+              <dt className="font-semibold text-gray-800">• 가게 이름:{item.storename}</dt>
+            
+              <dt className="font-semibold text-gray-800 mt-1">• 주소:{item.address}</dt>
+
+              {item.rating && (
+                <>
+                  <dt className="font-semibold text-gray-800 mt-1">• 평점:{item.rating}</dt>
+                </>
+              )}
+
+              {item.hon0_index_final && (
+                <>
+                <dt className="font-semibold text-gray-800 mt-1">• 혼0지수:{item.hon0_index_final}점</dt>
+                <dd className="ml-2 w-full">
+                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-3 bg-green-500"
+                    style={{ width: `${item.hon0_index_final}%` }}
+                  ></div>
+                </div>      
+              </dd>
+            </>
+          )}
+
+              {item.summary_bullets && (
+                <>
+                  <dt className="font-semibold text-gray-800 mt-1">• 방문객 후기: ⬇️</dt>
+                  <dd className="ml-2 text-gray-700">{item.summary_bullets}</dd>
+                </>
+              )}
+            </dl>
+          ))}
+        </div>
+      ): (
+        <p className="text-gray-500 text-sm">해당 날짜에 대한 로드맵이 없습니다.</p>
+      )}
+    </div>
+  ))
+) : (
+  <p className="mt-4 text-gray-400 text-sm text-center">로드맵이 아직 없습니다.</p>
+)}
+
 
         {/* 하단 저작권 */}
         <div className="mt-5 text-left text-xs text-gray-400">
@@ -277,5 +381,6 @@ export default function Loadmap() {
       
       <MyPageButtonWithPopup />
     </div>
+  </div>
   );
 }
