@@ -207,7 +207,7 @@ const Main = () => {
       )}
 
       {/* 타이틀 */}
-      <div className="absolute top-[2%] left-10 z-30 text-white font-bold text-6xl sm:text-8xl space-y-2 drop-shadow-md animate-slide-up">
+      <div className="absolute top-[2%] sm:left-10 left-5 z-30 text-white font-bold text-6xl sm:text-8xl space-y-2 drop-shadow-md animate-slide-up">
         <p>모험의 순간</p>
         <p>자연과 함께</p>
       </div>
