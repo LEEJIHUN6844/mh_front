@@ -58,9 +58,9 @@ export default function Loadmap() {
   const [selectedRegion, setSelectedRegion] = useState('전체 지역');
   const [switchCategories, setSwitchCategories] = useState({ 혼밥: false, 혼놀: false, 혼숙: false });
   const [switchCheckboxes, setSwitchCheckboxes] = useState({
-    혼밥: { 혼밥: false, 혼놀: false, 혼숙: false },
-    혼놀: { 혼밥: false, 혼놀: false, 혼숙: false },
-    혼숙: { 혼밥: false, 혼놀: false, 혼숙: false }
+    혼밥: { 한식:false, 일식:false, 양식:false, 고기:false, 디저트:false },
+    혼놀: { 카페:false, 공원:false, 도보:false, 박물관:false },
+    혼숙: { 캠핑:false, 야영:false, 펜션:false, 호텔:false, 모텔:false }
   });
   const [selectedDays, setSelectedDays] = useState(1);
   const [roadmap, setRoadmap] = useState([]);
