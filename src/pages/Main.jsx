@@ -67,7 +67,7 @@ const SwiperSection = ({ likes, keywordFilter, title, folder }) => {
       <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-700">{title}</h2>
       {filteredLikes.length === 0 ? (
         <div className="flex items-center justify-center h-[200px] rounded-xl bg-gray-100 text-gray-500 shadow-inner">
-          가게를 찾지 못했습니다 😢�
+          가게를 찾지 못했습니다 😢
         </div>
       ) : (
         <Swiper
@@ -121,9 +121,21 @@ const Main = () => {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await fetch('http://localhost:8000/mypage', { credentials: 'include' });
+        const sessionRes = await fetch('http://localhost:8000/session', {
+          credentials: 'include',
+        });
+        const sessionData = await sessionRes.json();
+  
+        if (!sessionData.authenticated) {
+          setIsLoggedIn(false);
+          return;
+        }
+  
+        const res = await fetch('http://localhost:8000/mypage', {
+          credentials: 'include',
+        });
         setIsLoggedIn(res.ok);
-      } catch (err) {
+      } catch {
         setIsLoggedIn(false);
       }
     };
