@@ -147,7 +147,7 @@ const Main = () => {
 
   const handleSearch = () => {
     const result = shops.filter(shop =>
-      shop.storename.includes(searchQuery) || shop.address.includes(searchQuery)
+      shop.storename.includes(searchQuery)
     );
     setSearchedShops(result);
   };
@@ -176,9 +176,7 @@ const Main = () => {
       <div className={`absolute top-[67.5vh] left-[7.5%] w-[80vw] min-w-[85%] transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}`}>
         <form
           className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSearch();
+          onSubmit={(e) => {e.preventDefault();handleSearch();
           }}
         >
           <input
@@ -216,7 +214,7 @@ const Main = () => {
 
       <div className="bg-white w-full rounded-t-3xl shadow-xl p-6 space-y-5 mt-[70vh] opacity-0 animate-slide-up">
         <div className="flex items-center space-x-3 mt-5 p-1">
-          <FilterDropdown label="전체 지역" options={['전체 지역','서울 은평구','덕양구','일산동구','일산서구']} selected={region} setSelected={setRegion} />
+          <FilterDropdown label="전체 지역" options={['전체 지역','서울 은평구','고양시 덕양구','고양시 일산동구','고양시 일산서구']} selected={region} setSelected={setRegion} />
           <FilterDropdown label="기본 정렬" options={['기본 정렬','평점 높은 순','혼밥 점수 높은 순','리뷰 많은 순']} selected={sort} setSelected={setSort} />
         </div>
 
