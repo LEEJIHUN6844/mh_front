@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link} from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import LogoutModalPage from './Logout.jsx';
 
 // 햄버거 메뉴 컴포넌트
-const HamburgerMenu = ({ isOpen, setIsOpen, isLoggedIn, handleLoginClick, handleLogoutClick }) => (
+const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
-    <button
-      onClick={() => setIsOpen(!isOpen)}
-      className="absolute top-4 right-4 z-50 text-gray-700 p-2"
+    <button 
+      onClick={() => setIsOpen(!isOpen)} 
+      className="absolute top-4 right-4 z-50 text-black p-2"
     >
       {isOpen ? <X size={28} /> : <Menu size={30} />}
     </button>
 
-    <div className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
-      isOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}>
+    <div
+      className={`fixed top-0 right-0 h-full w-[60%] sm:w-60 bg-white shadow-lg z-50 transition-transform duration-300 ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}
+    >
       <ul className="p-6 space-y-4">
         <li className="flex justify-between items-center border-b border-gray-300 pb-2">
-          <span>홈</span>
+          <Link to="/" onClick={() => setIsOpen(false)}>홈</Link>
           {isLoggedIn ? (
             <button
               onClick={handleLogoutClick}
@@ -35,12 +37,11 @@ const HamburgerMenu = ({ isOpen, setIsOpen, isLoggedIn, handleLoginClick, handle
             </button>
           )}
         </li>
-        <li><span>혼밥</span></li>
-        <li><span>혼놀</span></li>
-        <li><span>혼숙</span></li>
+        <li><Link to="/eating" onClick={() => setIsOpen(false)}>혼밥</Link></li>
+        <li><Link to="/playing" onClick={() => setIsOpen(false)}>혼놀</Link></li>
+        <li><Link to="/sleeping" onClick={() => setIsOpen(false)}>혼숙</Link></li>
       </ul>
     </div>
-
     {isOpen && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsOpen(false)} />}
   </>
 );
