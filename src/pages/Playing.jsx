@@ -56,9 +56,8 @@ const Main = () => {
   const [plays, setPlays] = useState([]);
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [likedShops, setLikedShops] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchedShops, setSearchedShops] = useState([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
@@ -141,13 +140,10 @@ const Main = () => {
     }
   };
 
-  // 검색
+  // 검색 submit
   const handleSearch = (e) => {
     e.preventDefault();
-    const result = plays.filter(play =>
-      play.storename.includes(searchQuery)
-    );
-    setSearchedShops(result);
+    // searchTerm 상태가 이미 filteredData에 반영됨
   };
 
   const filteredData = plays
@@ -158,8 +154,6 @@ const Main = () => {
       if (sort === '리뷰 많은 순') return b.review_cnt - a.review_cnt;
       return 0;
     });
-
-  const displayData = searchedShops.length > 0 ? searchedShops : filteredData;
 
   if (isLoading) {
     return (
@@ -194,8 +188,8 @@ const Main = () => {
             type="search"
             placeholder="검색어를 입력해보세요!!"
             className="w-full bg-transparent outline-none text-gray-800 placeholder-gray-400 text-lg pl-2"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
           />
           <button type="submit" className="text-sky-500">
             <Search size={24} strokeWidth={3} />
@@ -246,18 +240,13 @@ const Main = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-[150px]">
-          {displayData.map(play => (
+          {filteredData.map(play => (
             <div
               key={play.storeid}
               className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition relative cursor-pointer"
               onClick={() => navigate(`/playing/${play.storeid}`)}
             >
-              <img
-                src={play.img_url || `/assets/혼놀/${play.storeid}.jpg`}
-                alt={play.storename}
-                className="w-full h-48 object-cover object-center"
-                onError={e => { e.currentTarget.src = '/assets/default.jpg'; }}
-              />
+              <img src={`/assets/혼놀/${play.storeid}.jpg`} alt={play.storename} className="w-full h-48 object-cover object-center" onError={e => e.currentTarget.src = '/assets/default.jpg'} />
               <div className="p-4">
                 <h2 className="text-lg font-bold">{play.storename}</h2>
                 <p className="text-gray-500 text-sm">📍 {play.address}</p>
@@ -269,7 +258,13 @@ const Main = () => {
                   className={`p-1.5 rounded-full shadow transition ${likedShops.includes(play.storename) ? 'bg-red-500 text-white' : 'bg-sky-400 text-white'}`}
                   onClick={e => {
                     e.stopPropagation();
-                    toggleLike(play);
+                    toggleLike({
+                      storename: play.storename,
+                      keyword: play.keyword,
+                      address: play.address,
+                      category: play.category,
+                      storeid: play.storeid,
+                    });
                   }}
                 >
                   <Heart size={24} />
