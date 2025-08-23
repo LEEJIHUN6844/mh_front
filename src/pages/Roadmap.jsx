@@ -144,17 +144,29 @@ export default function Loadmap() {
   };
 
   // ---------------- 로그인 체크 ----------------
-  useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const res = await fetch('http://localhost:8000/mypage', { method: 'GET', credentials: 'include' });
-        setIsLoggedIn(res.ok);
-      } catch (err) {
-        setIsLoggedIn(false);
-      }
-    };
-    checkLogin();
-  }, []);
+    useEffect(() => {
+      const checkLogin = async () => {
+        try {
+          const sessionRes = await fetch('http://localhost:8000/session', {
+            credentials: 'include',
+          });
+          const sessionData = await sessionRes.json();
+    
+          if (!sessionData.authenticated) {
+            setIsLoggedIn(false);
+            return;
+          }
+    
+          const res = await fetch('http://localhost:8000/mypage', {
+            credentials: 'include',
+          });
+          setIsLoggedIn(res.ok);
+        } catch {
+          setIsLoggedIn(false);
+        }
+      };
+      checkLogin();
+    }, []);
 
   // ---------------- 버튼 핸들러 ----------------
   const handleLoginClick = () => {
