@@ -56,6 +56,17 @@ const EatingReview = () => {
         className="w-full aspect-w-16 aspect-h-9 rounded-xl mb-4 object-cover"
         onError={e => { e.currentTarget.src = '/assets/default.jpg'; }}
       />
+      
+      <p className="text-gray-500 text-sm">
+        🗺️
+        <a href={shop.url} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-sky-500 underline hover:text-sky-700"
+        >
+        네이버 지도 바로가기!
+        </a>
+      </p>
       <p className="text-gray-600 mb-2">📍 {shop.address}</p>
       <p className="text-gray-500 mb-4">⭐ {shop.rating} / 혼밥 점수 {shop.honbab_cnt}</p>
 
