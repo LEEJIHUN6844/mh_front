@@ -55,7 +55,8 @@ const Main = () => {
   const [sleepData, setSleepData] = useState([]);
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchedShops, setSearchedShops] = useState([]);
   const [likedShops, setLikedShops] = useState([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
@@ -139,10 +140,9 @@ const Main = () => {
     }
   };
 
-  // 필터 + 정렬 + 검색
+  // 필터 + 정렬 + 검색 + 중복 제거
   const filteredData = sleepData
     .filter(sleep => region && region !== '전체 지역' ? sleep.address.includes(region) : true)
-    .filter(sleep => searchTerm ? sleep.storename.includes(searchTerm) : true)
     .sort((a, b) => {
       if (sort === '평점 높은 순') return b.rating - a.rating;
       if (sort === '혼숙 점수 높은 순') return b.honbab_cnt - a.honbab_cnt;
@@ -152,7 +152,15 @@ const Main = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    const result = sleepData.filter(sleep =>
+      sleep.storename.includes(searchQuery)
+    );
+    setSearchedShops(result);
   };
+
+  // storeid 기준 중복 제거
+  const removeDuplicates = (arr) => Array.from(new Map(arr.map(item => [item.storeid, item])).values());
+  const displayData = removeDuplicates(searchedShops.length > 0 ? searchedShops : filteredData);
 
   if (isLoading) {
     return (
@@ -177,14 +185,14 @@ const Main = () => {
       ></div>
 
       {/* 검색창 */}
-      <div className={`absolute top-[67.5vh] left-[7.5%] w-[80vw] min-w-[85%] transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}`}>
+      <div className={`absolute top-[68vh] left-[7.5%] w-[80vw] min-w-[85%] transition-opacity duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 z-40 animate-slide-up'}`}>
         <form onSubmit={handleSearch} className="flex items-center bg-white rounded-3xl shadow-md px-4 py-2 border border-gray-200">
           <input
             type="search"
             placeholder="검색어를 입력해보세요!!"
-            className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg pl-2"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full bg-transparent outline-none text-gray-800 placeholder-gray-400 text-lg pl-2"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
           />
           <button type="submit" className="text-gray-500">
             <Search size={24} strokeWidth={3} />
@@ -225,7 +233,7 @@ const Main = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-[150px]">
-          {filteredData.map(sleep => (
+          {displayData.map(sleep => (
             <div key={sleep.storeid} className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition relative cursor-pointer" onClick={() => navigate(`/sleeping/${sleep.storeid}`)}>
               <img src={`/assets/혼숙/${sleep.storeid}.jpg`} alt={sleep.storename} className="w-full h-48 object-cover object-center" onError={e => e.currentTarget.src = '/assets/default.jpg'} />
               <div className="p-4">
