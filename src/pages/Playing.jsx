@@ -107,18 +107,20 @@ const Main = () => {
         const playRes = await fetch("http://localhost:8000/playing");
         const playData = await playRes.json();
         setPlays(playData.data || []);
-
-        const likeRes = await fetch("http://localhost:8000/mypage", { credentials: "include" });
-        const likeData = await likeRes.json();
-        setLikedShops(likeData.likes.map(like => like.item_name));
-      } catch (err) {
-        console.error(err);
+  
+        if (isLoggedIn) {
+          const likeRes = await fetch("http://localhost:8000/mypage", { credentials: "include" });
+          const likeData = await likeRes.json();
+          setLikedShops((likeData.likes || []).map(like => like.item_name));
+        } else {
+          setLikedShops([]);
+        }
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [isLoggedIn]);
 
   // 좋아요 토글
   const toggleLike = async (play) => {
