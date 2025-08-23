@@ -102,24 +102,26 @@ const Main = () => {
 
   // 데이터 fetch
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const sleepRes = await fetch('http://localhost:8000/sleeping');
-        const sleepJson = await sleepRes.json();
-        setSleepData(sleepJson.data || []);
-
-        const likeRes = await fetch("http://localhost:8000/mypage", { credentials: "include" });
-        const likeJson = await likeRes.json();
-        setLikedShops(likeJson.likes.map(like => like.item_name));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
+      const fetchData = async () => {
+        try {
+          const sleepRes = await fetch("http://localhost:8000/sleeping");
+          const sleepJson = await sleepRes.json();
+          setSleepData(sleepJson.data || []);
+    
+          if (isLoggedIn) {
+            const likeRes = await fetch("http://localhost:8000/mypage", { credentials: "include" });
+            const likeData = await likeRes.json();
+            setLikedShops((likeData.likes || []).map(like => like.item_name));
+          } else {
+            setLikedShops([]);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }, [isLoggedIn]);
+    
   // 좋아요 토글
   const toggleLike = async (sleep) => {
     const isLiked = likedShops.includes(sleep.storename);
