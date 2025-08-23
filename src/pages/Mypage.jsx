@@ -138,17 +138,29 @@ const Main = () => {
   }, [navigate]);
 
   // 로그인 상태 확인
-      useEffect(() => {
-        const checkLogin = async () => {
-          try {
-            const res = await fetch('http://localhost:8000/mypage', { credentials: 'include' });
-            setIsLoggedIn(res.ok);
-          } catch (err) {
+    useEffect(() => {
+      const checkLogin = async () => {
+        try {
+          const sessionRes = await fetch('http://localhost:8000/session', {
+            credentials: 'include',
+          });
+          const sessionData = await sessionRes.json();
+    
+          if (!sessionData.authenticated) {
             setIsLoggedIn(false);
+            return;
           }
-        };
-        checkLogin();
-      }, []);
+    
+          const res = await fetch('http://localhost:8000/mypage', {
+            credentials: 'include',
+          });
+          setIsLoggedIn(res.ok);
+        } catch {
+          setIsLoggedIn(false);
+        }
+      };
+      checkLogin();
+    }, []);
 
   const handleLoginClick = () => {
     setIsLoading(true);
