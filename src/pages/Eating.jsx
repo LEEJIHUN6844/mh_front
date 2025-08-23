@@ -100,23 +100,25 @@ const Main = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const shopRes = await fetch("http://localhost:8000/eating");
-        const shopData = await shopRes.json();
-        setShops(shopData.data || []);
-
-        const likeRes = await fetch("http://localhost:8000/mypage", { credentials: "include" });
-        const likeData = await likeRes.json();
-        setLikedShops(likeData.likes.map(like => like.item_name));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+      const fetchData = async () => {
+        try {
+          const shopRes = await fetch("http://localhost:8000/eating");
+          const shopData = await shopRes.json();
+          setShops(shopData.data || []);
+    
+          if (isLoggedIn) {
+            const likeRes = await fetch("http://localhost:8000/mypage", { credentials: "include" });
+            const likeData = await likeRes.json();
+            setLikedShops((likeData.likes || []).map(like => like.item_name));
+          } else {
+            setLikedShops([]);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }, [isLoggedIn]);
 
   const toggleLike = async (shop) => {
     const isLiked = likedShops.includes(shop.storename);
