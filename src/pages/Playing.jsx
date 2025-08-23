@@ -56,8 +56,9 @@ const Main = () => {
   const [plays, setPlays] = useState([]);
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
   const [likedShops, setLikedShops] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchedShops, setSearchedShops] = useState([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
@@ -140,21 +141,25 @@ const Main = () => {
     }
   };
 
-  // 검색 submit
+  // 검색
   const handleSearch = (e) => {
     e.preventDefault();
-    // searchTerm 상태가 이미 filteredData에 반영됨
+    const result = plays.filter(play =>
+      play.storename.includes(searchQuery)
+    );
+    setSearchedShops(result);
   };
 
   const filteredData = plays
     .filter(play => region && region !== '전체 지역' ? play.address.includes(region) : true)
-    .filter(play => searchTerm ? play.storename.includes(searchTerm) : true)
     .sort((a, b) => {
       if (sort === '평점 높은 순') return b.rating - a.rating;
       if (sort === '혼놀 점수 높은 순') return b.honbab_cnt - a.honbab_cnt;
       if (sort === '리뷰 많은 순') return b.review_cnt - a.review_cnt;
       return 0;
     });
+
+  const displayData = searchedShops.length > 0 ? searchedShops : filteredData;
 
   if (isLoading) {
     return (
@@ -189,8 +194,8 @@ const Main = () => {
             type="search"
             placeholder="검색어를 입력해보세요!!"
             className="w-full bg-transparent outline-none text-gray-800 placeholder-gray-400 text-lg pl-2"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
           />
           <button type="submit" className="text-sky-500">
             <Search size={24} strokeWidth={3} />
@@ -241,7 +246,7 @@ const Main = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-[150px]">
-          {filteredData.map(play => (
+          {displayData.map(play => (
             <div
               key={play.storeid}
               className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition relative cursor-pointer"
@@ -264,13 +269,7 @@ const Main = () => {
                   className={`p-1.5 rounded-full shadow transition ${likedShops.includes(play.storename) ? 'bg-red-500 text-white' : 'bg-sky-400 text-white'}`}
                   onClick={e => {
                     e.stopPropagation();
-                    toggleLike({
-                      storename: play.storename,
-                      keyword: play.keyword,
-                      address: play.address,
-                      category: play.category,
-                      storeid: play.storeid,
-                    });
+                    toggleLike(play);
                   }}
                 >
                   <Heart size={24} />
