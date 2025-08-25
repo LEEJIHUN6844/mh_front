@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import LogoutModalPage from './Logout.jsx';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 
-// ---------------- 햄버거 메뉴 ----------------
+// 햄버거 메뉴 
 const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
     <button 
@@ -49,11 +49,11 @@ const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick,
   </>
 );
 
-// ---------------- Loadmap 페이지 ----------------
+// Roadmap 페이지
 export default function Loadmap() {
   const navigate = useNavigate();
 
-  // ---------------- 상태 ----------------
+  // 로딩시 상태 
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('전체 지역');
   const [switchCategories, setSwitchCategories] = useState({ 혼밥: false, 혼놀: false, 혼숙: false });
@@ -76,7 +76,7 @@ export default function Loadmap() {
     { value: '일산서구', label: '경기도 일산서구' },
   ];
 
-  // ---------------- 스위치 핸들러 ----------------
+  
   const handleSwitchChange = (category, checked) => {
     setSwitchCategories(prev => ({ ...prev, [category]: checked }));
   };
@@ -88,7 +88,7 @@ export default function Loadmap() {
     }));
   };
 
-  // ---------------- 로드맵 API 호출 ----------------
+  // 로드맵 API 호출 
   const handleRoadmapClick = async () => {
     try {
       const kinds = Object.entries(switchCategories)
@@ -143,7 +143,7 @@ export default function Loadmap() {
     }
   };
 
-  // ---------------- 로그인 체크 ----------------
+  // 로그인 체크
     useEffect(() => {
       const checkLogin = async () => {
         try {
@@ -168,7 +168,7 @@ export default function Loadmap() {
       checkLogin();
     }, []);
 
-  // ---------------- 버튼 핸들러 ----------------
+ 
   const handleLoginClick = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -183,7 +183,7 @@ export default function Loadmap() {
     setShowLogoutModal(true);
   };
 
-  // ---------------- 렌더링 ----------------
+  // Roadmap 페이지
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white p-6">
       <div className="w-full max-w-3xl mx-auto">
@@ -302,7 +302,7 @@ export default function Loadmap() {
             </button>
           </div>
 
-         {/* ---------------- 로드맵 출력 ---------------- */}
+         {/* 로드맵 출력 */}
         {roadmap && roadmap.length > 0 ? (
   roadmap.map((dayPlan, i) => (
     <div
