@@ -8,7 +8,7 @@ import 'swiper/css/pagination';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 import LogoutModalPage from './Logout.jsx';
 
-/* ------------------------- 햄버거 메뉴 ------------------------- */
+// 햄버거 메뉴
 const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
     <button
@@ -57,7 +57,7 @@ const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick,
   </>
 );
 
-/* ------------------------- Swiper 섹션 ------------------------- */
+// Swiper 섹션 
 const SwiperSection = ({ likes, keywordFilter, title, folder }) => {
   const navigate = useNavigate();
   const filteredLikes = likes.filter(item => item.keyword.includes(keywordFilter));
@@ -108,7 +108,7 @@ const SwiperSection = ({ likes, keywordFilter, title, folder }) => {
   );
 };
 
-/* ------------------------- 메인 ------------------------- */
+// 메인페이지 구성
 const Main = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -142,7 +142,7 @@ const Main = () => {
     checkLogin();
   }, []);
 
-  // 로그인 버튼 클릭
+
   const handleLoginClick = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -152,13 +152,13 @@ const Main = () => {
     }, 800);
   };
 
-  // 로그아웃 버튼 클릭
+
   const handleLogoutClick = () => {
     setIsOpen(false);
     setShowLogoutModal(true);
   };
 
-  // 데이터 가져오기
+  // 가게 데이터 가져오기 및 랜덤 추천 
   useEffect(() => {
     const fetchData = async () => {
       try {
