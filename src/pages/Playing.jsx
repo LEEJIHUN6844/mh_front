@@ -247,7 +247,7 @@ const Main = () => {
         <div className="flex items-center space-x-3 mt-5 p-1">
           <FilterDropdown
             label="전체 지역"
-            options={['전체 지역','서울 은평구','고양시 덕양구','고양시 일산동구','고양시 일산서구']}
+            options={['전체 지역','서울 은평구','덕양구','일산동구','일산서구']}
             selected={region}
             setSelected={setRegion}
           />
