@@ -52,7 +52,7 @@ const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick,
 );
 
 
-// SwiperSection 컴포넌트
+// SwiperSection
 const SwiperSection = ({ likes, keywordFilter, title }) => {
   const navigate = useNavigate();
   const filteredLikes = likes.filter(item => item.keyword.includes(keywordFilter));
@@ -119,24 +119,6 @@ const Main = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
-  // 마이페이지 데이터 fetch
-  useEffect(() => {
-    fetch("http://localhost:8000/mypage", { credentials: "include" })
-      .then(res => {
-        if (!res.ok) throw new Error("로그인 필요");
-        return res.json();
-      })
-      .then(data => {
-        setUserName(data.UserName);
-        setLikes(data.likes || []);
-        setIsLoading(false); // 데이터 로딩 완료
-      })
-      .catch(() => {
-        setIsLoading(false); // 실패해도 로딩 종료
-        navigate("/Signup");
-      });
-  }, [navigate]);
-
   // 로그인 상태 확인
   useEffect(() => {
     const run = async () => {
@@ -153,16 +135,20 @@ const Main = () => {
   
         setIsLoggedIn(true);
   
-        const res = await fetch("http://localhost:8000/mypage", { credentials: "include" });
-        const data = await res.json();
-        setUserName(data.UserName);
-        setLikes(data.likes || []);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    run();
-  }, [navigate]);
+      const res = await fetch("http://localhost:8000/mypage", { credentials: "include" });
+      if (!res.ok) throw new Error("마이페이지 데이터 없음");
+
+      const data = await res.json();
+      setUserName(data.UserName);
+      setLikes(data.likes || []);
+    } catch {
+      navigate("/Signup");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  run();
+}, [navigate]);
 
   const handleLoginClick = () => {
     setIsLoading(true);
@@ -173,7 +159,7 @@ const Main = () => {
     }, 800);
   };
 
-  // 로그아웃 버튼 클릭
+
   const handleLogoutClick = () => {
     setIsOpen(false);
     setShowLogoutModal(true);
@@ -194,8 +180,9 @@ const Main = () => {
       </div>
     );
   }
-  
-  // Mypage 페이지 JSX
+
+
+  // Mypage 페이지
   return (
     <div className="relative w-full min-h-screen bg-gray-50 overflow-x-hidden">
       <MyPageButtonWithPopup />
