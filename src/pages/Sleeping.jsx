@@ -154,7 +154,7 @@ const Main = () => {
     }
   };
 
-  // 필터 + 정렬 + 검색 + 중복 제거
+  
   const filteredData = sleepData
     .filter(sleep => region && region !== '전체 지역' ? sleep.address.includes(region) : true)
     .sort((a, b) => {
@@ -172,9 +172,7 @@ const Main = () => {
     setSearchedShops(result);
   };
 
-  // storeid 기준 중복 제거
-  const removeDuplicates = (arr) => Array.from(new Map(arr.map(item => [item.storeid, item])).values());
-  const displayData = removeDuplicates(searchedShops.length > 0 ? searchedShops : filteredData);
+  const displayData = searchedShops.length > 0 ? searchedShops : filteredData;
 
   if (isLoading) {
     return (
