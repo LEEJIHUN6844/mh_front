@@ -138,29 +138,31 @@ const Main = () => {
   }, [navigate]);
 
   // 로그인 상태 확인
-    useEffect(() => {
-      const checkLogin = async () => {
-        try {
-          const sessionRes = await fetch('http://localhost:8000/session', {
-            credentials: 'include',
-          });
-          const sessionData = await sessionRes.json();
-    
-          if (!sessionData.authenticated) {
-            setIsLoggedIn(false);
-            return;
-          }
-    
-          const res = await fetch('http://localhost:8000/mypage', {
-            credentials: 'include',
-          });
-          setIsLoggedIn(res.ok);
-        } catch {
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const s = await fetch("http://localhost:8000/session", { credentials: "include" });
+        const { authenticated } = await s.json();
+  
+        if (!authenticated) {
           setIsLoggedIn(false);
+          setIsLoading(false);
+          navigate("/Signup");
+          return;
         }
-      };
-      checkLogin();
-    }, []);
+  
+        setIsLoggedIn(true);
+  
+        const res = await fetch("http://localhost:8000/mypage", { credentials: "include" });
+        const data = await res.json();
+        setUserName(data.UserName);
+        setLikes(data.likes || []);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    run();
+  }, [navigate]);
 
   const handleLoginClick = () => {
     setIsLoading(true);
@@ -192,8 +194,7 @@ const Main = () => {
       </div>
     );
   }
-
-
+  
   // Mypage 페이지 JSX
   return (
     <div className="relative w-full min-h-screen bg-gray-50 overflow-x-hidden">
