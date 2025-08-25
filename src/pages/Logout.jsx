@@ -12,12 +12,12 @@ function LogoutModalPage({ setShowModal, setIsLoggedIn, onLogout }) {
       });
 
       if (res.ok) {
-        localStorage.removeItem("token");   // 토큰 제거
-        setIsLoggedIn(false);               // 로그인 상태 false로 변경
-        setShowModal(false);                // 모달 닫기
+        localStorage.removeItem("token");
+        setIsLoggedIn(false); 
+        setShowModal(false);                
         onLogout?.(); 
         alert("로그아웃 성공");
-        navigate("/");                      // 메인으로 이동
+        navigate("/");                      
       } else {
         console.error("로그아웃 실패:", res.status);
       }
