@@ -11,17 +11,15 @@ const EatingReview = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 5;
-
+  // 가게 정보
   useEffect(() => {
-    // 1️⃣ 가게 정보 가져오기
     fetch("http://localhost:8000/eating")
       .then(res => res.json())
       .then(data => {
         const matchedShop = data.data.find(s => s.storeid === storeId);
         setShop(matchedShop || null);
       });
-
-    // 2️⃣ 리뷰 정보 가져오기
+    // 리뷰 
     fetch(`http://localhost:8000/eating/${storeId}/review`)
       .then(res => res.json())
       .then(data => setReviews(data.reviews || []))
@@ -31,7 +29,7 @@ const EatingReview = () => {
   if (loading) return <p>로딩중...</p>;
   if (!shop) return <p>가게 정보를 찾을 수 없습니다.</p>;
 
-  // 페이지네이션 계산
+  
   const indexOfLastReview = currentPage * reviewsPerPage;
   const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
   const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
@@ -39,7 +37,7 @@ const EatingReview = () => {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      {/* 제목 + 뒤로가기 */}
+      {/* 제목 + 뒤로가기 버튼 */}
       <div className="flex items-center mb-4">
         <button 
           onClick={() => navigate(-1)}
