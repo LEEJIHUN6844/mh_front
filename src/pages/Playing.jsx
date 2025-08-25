@@ -57,6 +57,7 @@ const Main = () => {
   const [region, setRegion] = useState('');
   const [sort, setSort] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchedShops, setSearchedShops] = useState([]);
   const [likedShops, setLikedShops] = useState([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
@@ -157,7 +158,10 @@ const Main = () => {
   // 검색 submit
   const handleSearch = (e) => {
     e.preventDefault();
-    // searchTerm 상태가 이미 filteredData에 반영됨
+    const result = plays.filter(play =>
+      play.storename.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setSearchedShops(result); 
   };
 
   const filteredData = plays
@@ -168,6 +172,8 @@ const Main = () => {
       if (sort === '리뷰 많은 순') return b.review_cnt - a.review_cnt;
       return 0;
     });
+
+  const displayData = searchedShops.length > 0 ? searchedShops : filteredData;
 
   if (isLoading) {
     return (
@@ -241,7 +247,7 @@ const Main = () => {
         <div className="flex items-center space-x-3 mt-5 p-1">
           <FilterDropdown
             label="전체 지역"
-            options={['전체 지역','서울 은평구','덕양구','일산동구','일산서구']}
+            options={['전체 지역','서울 은평구','고양시 덕양구','고양시 일산동구','고양시 일산서구']}
             selected={region}
             setSelected={setRegion}
           />
@@ -254,7 +260,7 @@ const Main = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 min-h-[150px]">
-          {filteredData.map(play => (
+          {displayData.map(play => (
             <div
               key={play.storeid}
               className="bg-white shadow rounded-xl overflow-hidden hover:shadow-lg transition relative cursor-pointer"
