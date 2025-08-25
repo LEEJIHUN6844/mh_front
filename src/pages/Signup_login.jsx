@@ -3,7 +3,7 @@ import { useNavigate,Link} from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import LogoutModalPage from './Logout.jsx';
 
-// 햄버거 메뉴 컴포넌트
+// 햄버거 메뉴
 const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
     <button 
@@ -46,10 +46,10 @@ const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick,
   </>
 );
 
-// 회원가입/로그인 페이지
+
 const SignupLogin = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [isOpen, setIsOpen] = useState(false); // 햄버거 메뉴
+  const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loginData, setLoginData] = useState({ UserID: '', UserPW: '' });
@@ -120,13 +120,13 @@ const SignupLogin = () => {
     }
   };
 
-  // 햄버거 메뉴 로그인 클릭
+
   const handleHamburgerLogin = () => {
     setIsLogin(true);
     setIsOpen(false);
   };
 
-  // 햄버거 메뉴 로그아웃 클릭
+
   const handleHamburgerLogout = () => {
     setShowLogoutModal(true);
     setIsOpen(false);
@@ -143,7 +143,7 @@ const SignupLogin = () => {
         handleLogoutClick={handleHamburgerLogout}
       />
 
-      {/* 로그아웃 모달 - 화면 최상단에서 전체 렌더링 */}
+      {/* 로그아웃 모달 */}
       {showLogoutModal && <LogoutModalPage setShowModal={setShowLogoutModal} />}
 
       {/* 로그인/회원가입 UI */}
