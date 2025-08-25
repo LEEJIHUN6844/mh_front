@@ -60,7 +60,6 @@ const Main = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
-  // 로그인 상태 확인
   useEffect(() => {
       const checkLogin = async () => {
         try {
