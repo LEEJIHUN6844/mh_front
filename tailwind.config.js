@@ -3,7 +3,7 @@ module.exports = {
   theme: {
     extend: {
       animation: {
-        'slide-up': 'slide-up 0.5s ease-out forwards', // ← 여기 forwards 추가!
+        'slide-up': 'slide-up 0.5s ease-out forwards',
       },
       keyframes: {
         'slide-up': {
