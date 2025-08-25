@@ -5,7 +5,7 @@ import FilterDropdown from '../pages/FilterDropdown';
 import MyPageButtonWithPopup from './Mypage_loadmap_button.jsx';
 import LogoutModalPage from './Logout.jsx';
 
-// 햄버거 메뉴 컴포넌트
+// 햄버거 메뉴
 const HamburgerMenu = ({ isOpen, setIsOpen, handleLoginClick, handleLogoutClick, isLoggedIn }) => (
   <>
     <button 
@@ -155,7 +155,7 @@ const Main = () => {
     }
   };
 
-  // 검색 submit
+  // 검색 결과
   const handleSearch = (e) => {
     e.preventDefault();
     const result = plays.filter(play =>
