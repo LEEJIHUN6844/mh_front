@@ -4,7 +4,7 @@ const PageWithLoader = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 예시: 0.8초 후 로딩 종료
+    // 0.8초 후 로딩 종료
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 800);
@@ -12,12 +12,11 @@ const PageWithLoader = () => {
     return () => clearTimeout(timer); // cleanup
   }, []);
   
-  {/* 로딩 함수 */}
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
         <div className="flex flex-col items-center">
-          {/* 회전하는 로딩 아이콘 */}
+          {/* 로딩 아이콘 */}
           <svg className="animate-spin h-10 w-10 text-green-500 mb-4" viewBox="0 0 24 24">
             <circle
               className="opacity-25"
